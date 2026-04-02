@@ -1,0 +1,179 @@
+﻿{
+    "mode":  "rlp30",
+    "total":  60,
+    "created":  "2026-04-01T00:00:00Z",
+    "task":  "Fix coolmax-oc.ps1 all errors + maximize everything for this PC. Combine with game220.ps1 all 28 nuclear helpers + Phase2 40 categories. Run and verify 3x until no doubt. Then apply GPU OC additions to all 221 game scripts (game1-game219, game220, gameauto). + [RESTORED] MegaToDo: Clone todoist-enhanced, rename to MegaToDo, setup database persistence, ensure working log + Extract top 300 longest profile functions to F:/study scripts (dot-source refactor)",
+    "workingDir":  "C:/Users/micha/Documents/WindowsPowerShell",
+    "context":  "MACHINE: RTX 5080 (nvml.dll, 3 fans, Fan0=read-only, Fan1+Fan2=physical), Gigabyte X870E AORUS PRO, AMD Ryzen CPU. PS v5 ONLY - no em-dash, semicolons not \u0026\u0026. KEY FILES: C:/Users/micha/Documents/WindowsPowerShell/coolmax-oc.ps1, C:/Users/micha/Documents/WindowsPowerShell/_SetGpuMaxOC.ps1, C:/Users/micha/Documents/WindowsPowerShell/_SetNvGpuFan.ps1. GAME DIR: F:/study/Dev_Toolchain/programming/C++/mingw-complete/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/plugin/include/common/config/i386/FanAndGameControl/Game/ (game1-game220 + gameauto.ps1). game220.ps1 calls 28 nuclear helpers + _SetGamemaxPhase2 (40 categories). RTX 5080 Blackwell: NVML VF offsets NOT supported (err 3), use nvidia-smi -lgc/-lmc. Fan0=0% at idle (hw zero-stop), Fan1+Fan2 are real fans. NVML: SetPolicy MANUAL before SetSpeed, 6s ramp.",
+    "todos":  [
+                  {
+                      "id":  1,
+                      "text":  "[F:/study/WebBuilding/projects/MegaToDo] Read entire codebase (server.js, routes/, frontend/src/, netlify.toml) and identify all bugs, broken features, missing functionality - Mission: MegaToDo deploy and perfect",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  2,
+                      "text":  "[F:/study/WebBuilding/projects/MegaToDo/server.js] Fix any backend bugs found: broken API routes, auth issues, database errors, missing endpoints - Mission: MegaToDo deploy and perfect",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  3,
+                      "text":  "[F:/study/WebBuilding/projects/MegaToDo/frontend/src] Fix any frontend bugs: broken UI components, API call failures, routing issues, CSS/layout problems - Mission: MegaToDo deploy and perfect",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  4,
+                      "text":  "[F:/study/WebBuilding/projects/MegaToDo/frontend] Run npm install and npm run build in frontend/ dir, verify build succeeds with zero errors - Mission: MegaToDo deploy and perfect",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  5,
+                      "text":  "[F:/study/WebBuilding/projects/MegaToDo] Git add all changes, commit with descriptive message, push to origin main - Mission: MegaToDo deploy and perfect",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  6,
+                      "text":  "[F:/study/WebBuilding/projects/MegaToDo] Deploy to Netlify via netlify deploy --prod, verify deployment URL is live - Mission: MegaToDo deploy and perfect",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  7,
+                      "text":  "[Browser] Open deployed Netlify URL, test ALL features: signup, login, create/edit/delete tasks, filters, search, settings, responsive layout - Mission: MegaToDo deploy and perfect",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  8,
+                      "text":  "[F:/study/WebBuilding/projects/MegaToDo] Fix ALL issues found during browser testing - every bug, UI glitch, broken feature - Mission: MegaToDo deploy and perfect",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  9,
+                      "text":  "[F:/study/WebBuilding/projects/MegaToDo] Rebuild frontend, commit, push, redeploy to Netlify with all fixes - Mission: MegaToDo deploy and perfect",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  10,
+                      "text":  "[Browser] Final comprehensive test of redeployed site: every page, every button, every feature must work flawlessly - confirm perfect deployment - Mission: MegaToDo deploy and perfect",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  31,
+                      "text":  "[F:/study/WebBuilding/projects/MegaToDo] Add offline cache: service worker caches Todoist API responses in IndexedDB, shows cached tasks offline with Offline Mode banner, syncs on reconnect. VERIFY: disable DevTools network, reload, cached tasks visible with Offline Mode banner. -- Mission: MegaToDo deploy and perfect",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  32,
+                      "text":  "[F:/study/WebBuilding/projects/MegaToDo] Add bulk operations: checkbox selection, bulk-complete/delete/move, Select All button, bulk action toolbar. VERIFY: select 3 tasks, bulk-complete, all 3 complete; undo restores them. -- Mission: MegaToDo deploy and perfect",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  33,
+                      "text":  "[F:/study/WebBuilding/projects/MegaToDo] Add kanban board view: Today/This Week/Later/Someday columns, drag tasks between columns updates due date, toggle list vs kanban view. VERIFY: drag task from Today to This Week, due date updated in Todoist API. -- Mission: MegaToDo deploy and perfect",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  34,
+                      "text":  "[F:/study/WebBuilding/projects/MegaToDo] Add time tracking: Start/Stop timer per task, entries in SQLite data/timelog.db, daily/weekly report view. VERIFY: start timer, wait 1 min, stop, 1 min logged in time report. -- Mission: MegaToDo deploy and perfect",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  35,
+                      "text":  "[F:/study/WebBuilding/projects/MegaToDo] Add smart filter builder UI: build Todoist filter queries visually, save named filters, quick-access buttons. VERIFY: create Urgent Today = priority:1 AND due:today filter; save; clicking shows only matching tasks. -- Mission: MegaToDo deploy and perfect",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  36,
+                      "text":  "[F:/study/WebBuilding/projects/MegaToDo] Fix OAuth for production domain: update Todoist developer app with Netlify redirect URI https://megatodo.netlify.app/oauth/callback; test full OAuth flow. VERIFY: login at megatodo.netlify.app completes OAuth; tasks load within 3s. -- Mission: MegaToDo deploy and perfect",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  37,
+                      "text":  "[F:/study/WebBuilding/projects/MegaToDo/data] Set up SQLite with better-sqlite3: data/megatodo.db with tables tasks timelog filters. VERIFY: node -e require(\u0027./data/db.js\u0027) creates megatodo.db; .tables command shows 3 tables. -- Mission: MegaToDo deploy and perfect",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  38,
+                      "text":  "[F:/study/WebBuilding/projects/MegaToDo] Add /done work log append: /done in task note appends timestamped entry to today Documentation Todoist task matching /done skill behavior. VERIFY: type /done in task note, entry appended with timestamp to Documentation project. -- Mission: MegaToDo deploy and perfect",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  39,
+                      "text":  "[F:/study/WebBuilding/projects/MegaToDo] Add dark theme with purple accent #7c3aed: CSS custom properties, WCAG AA contrast \u003e= 4.5:1 for all text elements. VERIFY: axe DevTools shows 0 contrast failures in dark mode. -- Mission: MegaToDo deploy and perfect",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  40,
+                      "text":  "[F:/study/WebBuilding/projects/MegaToDo] Add keyboard shortcuts: T=Today W=Week K=Kanban /=search N=new task E=edit D=complete Del=delete Ctrl+S=save ?=cheat sheet overlay. VERIFY: press T switches to Today view; press N opens new task dialog. - - Mission: MegaToDo deploy and perfect",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  61,
+                      "text":  "Force push the entire thing to the repository domain branch and then ewdeploy to netlify - Mission: MegaToDo deploy and perfect",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  62,
+                      "text":  "test the deployed site To have everything as we expected it - Mission: MegaToDo deploy and perfect",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  64,
+                      "text":  "In the missions menu on the left side of the website, next to each mission, add button X for A quick validation of that mission in full +Â Up arrow and down arrow that will allow you to easily switch between the order of the missions - Mission: ControlPanelÂ https://ob-autodeploy.netlify.app/",
+                      "status":  "done"
+                  },
+                  {
+                      "id":  65,
+                      "text":  "rehaul qwbaite looks .  Make every single detail and feature look as beautiful, accessible, useful and nice to use as possible? - Mission: ControlPanelÂ https://ob-autodeploy.netlify.app/",
+                      "status":  "done"
+                  },
+                  {
+                      "id":  66,
+                      "text":  "Make sure rge website stay active all the time even if my Windows 11 is shut down But just when it\u0027s   turned back on and I reconnect then it will just reconnect back with it I can still use it and save stuff on it while offline and then when I\u0027m back online, all of those stuff that I saved will sh - Mission: ControlPanelÂ https://ob-autodeploy.netlify.app/",
+                      "status":  "done"
+                  },
+                  {
+                      "id":  68,
+                      "text":  "On top of Windows friendly, make sure this website is Android friendly as possible when I\u0027m using it on Chrome for my Android smartphone. - Mission: ControlPanelÂ https://ob-autodeploy.netlify.app/",
+                      "status":  "done"
+                  },
+                  {
+                      "id":  69,
+                      "text":  "The website is moving way, way, way too slow. Make sure to optimize every aspect of it to be as simple and pleasant as possible. - Mission: ControlPanelÂ https://ob-autodeploy.netlify.app/",
+                      "status":  "done"
+                  },
+                  {
+                      "id":  70,
+                      "text":  "Whenever I reconnect website and local machine Everything that I have on my local machine is still relevant And not yet on the website will immediately integrate to the website and vice versa But never garbage that is old and not relevant - Mission: ControlPanelÂ https://ob-autodeploy.netlify.app/",
+                      "status":  "done"
+                  },
+                  {
+                      "id":  71,
+                      "text":  "rehaul to missions Dashboard on the right to make it literally as appealing, as useful as possible for all missions With every possible ability you can think of that I might need to make this entire experience as best as possible Including making the entire menu bigger or smaller, etc. - Mission: ControlPanelÂ https://ob-autodeploy.netlify.app/",
+                      "status":  "done"
+                  },
+                  {
+                      "id":  72,
+                      "text":  "This is the way the menu currently looks on my machine Of course as you can see it\u0027s garbage We\u0027re calling permanently to be locally on the terminal to look as best as possible With missions and to do it in the most beautiful and human readable way possible :   PS F:\\Downloads\u003e rlp    ============== - Mission: ControlPanelÂ https://ob-autodeploy.netlify.app/",
+                      "status":  "done"
+                  },
+                  {
+                      "id":  74,
+                      "text":  "https://ob-autodeploy.netlify.app/    Make sure this specific URL is a permanent URL for this website. After you make sure, update the GitHub repository, create a new file and add this URL. - Mission: ControlPanelÂ https://ob-autodeploy.netlify.app/",
+                      "status":  "done"
+                  },
+                  {
+                      "id":  75,
+                      "text":  "look dfeep in your memory and slah command... just like all your rlpNx  and rlpNy, allow me to Make sure I\u0027m always able for any possible mission or to-do To split this one to-do or mission into as many missions or to-dos that I want Or vice versa to combine many i want to as mant i want. - Mission: ControlPanelÂ https://ob-autodeploy.netlify.app/",
+                      "status":  "done"
+                  },
+                  {
+                      "id":  76,
+                      "text":  "I need you to make absolutely sure without any doubt that every single change, update or whatever I do related to this website is saved with database or whatever so I can be calm and know that nothing was deleted - Mission: ControlPanelÂ https://ob-autodeploy.netlify.app/",
+                      "status":  "done"
+                  }
+              ],
+    "missionExplanations":  {
+                                "MegaToDo deploy and perfect":  "GOAL: Clone the todoist-enhanced repository, rename it to MegaToDo, configure database persistence (replacing in-memory state), ensure the full Todoist API integration works with live task sync, and deploy a production-ready instance to Netlify or Heroku with persistent storage.\n\nMegaToDo is a feature-rich Todoist client web app that adds bulk operations, time tracking, kanban view, and smart filtering on top of the standard Todoist API. The base repo (todoist-enhanced) already has the UI framework ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â the work is to: (1) set up PostgreSQL or SQLite persistence for offline cache and custom fields that Todoist API doesn\u0027t support natively; (2) configure the Todoist OAuth flow with correct redirect URIs for the deployed domain; (3) add a work log feature that appends timestamped entries to dated tasks in the Documentation project (matching the /done skill behavior); (4) ensure the deployed instance auto-updates when the GitHub main branch is pushed.\n\nThe Netlify auth token is in NETLIFY_AUTH_TOKEN env var and F:\\Downloads\\ob\\.env. GitHub account: Michaelunkai. The repo should be created at https://github.com/Michaelunkai/MegaToDo. Deploy target: megatodo.netlify.app (or similar).\n\nDatabase persistence design: use a lightweight SQLite file stored in the repo\u0027s data/ folder (not gitignored) for custom fields and work log, while all core tasks stay in Todoist API as the source of truth. This avoids needing a database server.\n\nVerification: create a task via the UI, verify it appears in Todoist app, append a work log entry, verify it persists on page refresh. GitHub: https://github.com/Michaelunkai/MegaToDo. Deployed: https://megatodo.netlify.app.",
+                                "ControlPanelÂ https://ob-autodeploy.netlify.app/":  "GOAL: Integrate OpenClaw (the multi-workspace Claude Code orchestrator) with a Mission Control dashboard that provides real-time visibility into all running workspaces, their RLP state, active todos, and resource usage -- and deploy it publicly so it is always accessible from any device.\n\nMission Control is a Next.js web application located at F:/Downloads/mission-control/mission-control/. It was built to give a unified command center for all Claude Code sessions running across 8 simultaneous workspaces (moltbot, openclaw, session2, main, etc.). Without it, monitoring requires manually switching between terminal tabs.\n\nThe OpenClaw integration adds agent-level visibility: each workspace Claude process is registered as an agent in Mission Control, showing its current status (idle, working, blocked), the last command it ran, and live stdout tail. Config for all 8 workspaces is in C:\\Users\\micha\\.openclaw\\. Each workspace inherits global commands from C:\\Users\\micha\\.claude\\commands\\.\n\nThe RLP integration is the key new feature: a dedicated RLP QUEUE panel built as a React component (RlpPanel.tsx) that reads C:\\Users\\micha\\.claude\\workspace\\rlp-state.json every 5 seconds via a Next.js /api/rlp-state route. It renders all missions with color-coded progress bars matching rlpl-runner.ps1 exactly: white=untouched, yellow=partial, blue=100% done. Clicking a mission expands its full todo list showing [ ] pending, [\u003e] active, [x] done statuses. This gives a browser mirror of the terminal rlpl command, usable from phone or tablet.\n\nA Server-Sent Events endpoint /api/rlp-watch uses fs.watch on rlp-state.json to push instant updates when any RLP session completes a todo. The rlp-chain.ps1 script POSTs to /api/rlp-notify after each completion for additional push path.\n\nThe deployment target is Netlify (NETLIFY_AUTH_TOKEN in F:\\Downloads\\ob\\.env) via netlify deploy --prod. The Node.js server component runs as a Task Scheduler entry MissionControlServer using a VBS wrapper (SW_HIDE) to auto-start on logon.\n\nGitHub: https://github.com/Michaelunkai/study2 (mission-control folder). Deployed: https://mission-control.netlify.app (URL confirmed after deployment)."
+                            }
+}

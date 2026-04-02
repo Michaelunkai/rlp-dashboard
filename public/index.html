@@ -2,823 +2,1793 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>RLP Dashboard</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* ── RESET & CUSTOM PROPS ─────────────────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0d0d1a;--bg2:#111127;--bg3:#16213e;--bg4:#1a1a3e;
-  --border:#2a2a4a;--text:#e0e0e0;--muted:#888;--accent:#7c3aed;
-  --accent2:#6d28d9;--green:#22c55e;--yellow:#eab308;--red:#ef4444;
-  --blue:#3b82f6;--cyan:#06b6d4;
+  --bg:#080812;
+  --bg2:#0f0f1e;
+  --bg3:#0a0a1a;
+  --bg4:#13132a;
+  --bg5:#1a1a38;
+  --border:rgba(124,58,237,0.15);
+  --border2:rgba(124,58,237,0.3);
+  --border3:rgba(124,58,237,0.5);
+  --text:#e8e8f0;
+  --text2:#a0a0c0;
+  --muted:#5a5a7a;
+  --accent:#7c3aed;
+  --accent2:#6d28d9;
+  --accent3:#5b21b6;
+  --accent-glow:rgba(124,58,237,0.25);
+  --green:#22c55e;
+  --green-dim:rgba(34,197,94,0.15);
+  --yellow:#eab308;
+  --yellow-dim:rgba(234,179,8,0.15);
+  --red:#ef4444;
+  --red-dim:rgba(239,68,68,0.15);
+  --blue:#3b82f6;
+  --blue-dim:rgba(59,130,246,0.15);
+  --radius-sm:6px;
+  --radius:10px;
+  --radius-lg:14px;
+  --shadow:0 4px 24px rgba(0,0,0,0.4);
+  --shadow-accent:0 4px 20px rgba(124,58,237,0.2);
+  --font:'Inter',system-ui,-apple-system,sans-serif;
+  --font-mono:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace;
+  --topbar-h:52px;
+  --toolbar-h:48px;
+  --sidebar-w:220px;
 }
-body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;font-size:13px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
 
-/* ── TOP BAR ── */
-#topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;flex-shrink:0;min-height:48px}
-#topbar h1{color:var(--accent);font-size:15px;white-space:nowrap;margin-right:4px}
-.stat-pill{background:var(--bg3);border:1px solid var(--border);padding:3px 10px;border-radius:12px;font-size:11px;white-space:nowrap}
-.stat-pill span{color:#fff;font-weight:bold}
-#bar-wrap{flex:1;min-width:120px;max-width:200px;background:#333;border-radius:6px;height:10px;overflow:hidden}
-#bar-fill{height:100%;background:var(--accent);transition:width .6s;border-radius:6px}
-#bar-pct{color:var(--accent);font-weight:bold;font-size:12px;min-width:36px}
-#ws-dot{font-size:18px;transition:color .3s}
-#ws-dot.live{color:var(--green)}
-#ws-dot.poll{color:var(--yellow)}
-#ws-dot.dead{color:var(--red)}
-#ws-label{font-size:11px;min-width:70px}
-.topbar-spacer{flex:1}
-.icon-btn{background:none;border:1px solid var(--border);color:var(--text);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:5px;transition:background .2s}
-.icon-btn:hover{background:var(--bg4);border-color:var(--accent)}
-#github-btn{background:var(--bg3);border-color:#555;color:#fff;padding:5px 14px;font-size:13px;font-weight:bold;border-radius:8px}
-#github-btn:hover{background:#24292e;border-color:#aaa}
-#github-btn svg{vertical-align:middle}
+html{height:100%}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font);
+  font-size:13px;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
 
-/* ── TOOLBAR ── */
-#toolbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:7px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex-shrink:0}
-#search-box{background:var(--bg);color:var(--text);border:1px solid var(--border);padding:5px 10px;border-radius:6px;font-family:inherit;font-size:12px;width:180px}
-#search-box:focus{outline:none;border-color:var(--accent)}
-select.tb-select{background:var(--bg);color:var(--text);border:1px solid var(--border);padding:5px 8px;border-radius:6px;font-family:inherit;font-size:12px;cursor:pointer}
-.tb-btn{background:var(--bg3);color:var(--text);border:1px solid var(--border);padding:5px 11px;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit;transition:background .2s;white-space:nowrap}
-.tb-btn:hover{background:var(--bg4);border-color:var(--accent)}
-.tb-btn.danger{border-color:#7f1d1d;color:var(--red)}
-.tb-btn.danger:hover{background:#3b1010}
-.tb-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-.tb-btn.primary:hover{background:var(--accent2)}
-.tb-sep{width:1px;height:22px;background:var(--border);margin:0 4px}
+/* ── SCROLLBARS ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:var(--accent)}
 
-/* ── LAYOUT ── */
-#body{display:flex;flex:1;overflow:hidden}
-#sidebar{width:210px;min-width:180px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;transition:width .2s}
-#sidebar.collapsed{width:0;min-width:0;overflow:hidden}
-#sidebar-inner{flex:1;overflow-y:auto;padding:8px}
-#sidebar-inner::-webkit-scrollbar{width:4px}
-#sidebar-inner::-webkit-scrollbar-thumb{background:var(--border)}
-#content{flex:1;overflow-y:auto;padding:14px}
-#content::-webkit-scrollbar{width:6px}
-#content::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+/* ── OFFLINE BANNER ───────────────────────────────────────────────────────── */
+#offline-banner{
+  display:none;
+  background:linear-gradient(90deg,#7f1d1d,#991b1b);
+  color:#fca5a5;
+  text-align:center;
+  padding:6px 12px;
+  font-size:12px;
+  font-weight:500;
+  letter-spacing:0.02em;
+  flex-shrink:0;
+  z-index:200;
+}
+#offline-banner.vis{display:block}
 
-/* ── SIDEBAR ── */
-.sb-section{font-size:10px;color:var(--muted);letter-spacing:.08em;margin:8px 0 4px;text-transform:uppercase}
-.sb-mission{padding:6px 8px;margin-bottom:4px;border-radius:6px;cursor:pointer;border-left:3px solid transparent;transition:background .15s}
-.sb-mission:hover{background:var(--bg4)}
-.sb-mission.active{background:var(--bg4);border-left-color:var(--accent)}
-.sb-mission-name{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sb-bar-wrap{height:4px;background:#333;border-radius:2px;margin-top:4px;overflow:hidden}
-.sb-bar-fill{height:100%;border-radius:2px;transition:width .4s}
-.sb-count{font-size:10px;color:var(--muted);margin-top:2px}
-.sb-add-mission{width:100%;background:none;border:1px dashed var(--border);color:var(--muted);padding:5px;border-radius:6px;cursor:pointer;font-size:11px;margin-top:8px;transition:all .2s}
-.sb-add-mission:hover{border-color:var(--accent);color:var(--accent)}
-#openclaw-section{padding:8px;border-top:1px solid var(--border);margin-top:auto;flex-shrink:0}
-.oc-badge{font-size:11px}
-.oc-online{color:var(--green)}
-.oc-offline{color:var(--red)}
+/* ── TOP BAR ──────────────────────────────────────────────────────────────── */
+#topbar{
+  background:linear-gradient(180deg,#0d0d22 0%,#0a0a18 100%);
+  border-bottom:1px solid var(--border2);
+  padding:0 16px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-shrink:0;
+  height:var(--topbar-h);
+  position:relative;
+  z-index:100;
+}
 
-/* ── MISSION CARDS ── */
-.mission-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;margin-bottom:12px;overflow:hidden;transition:border-color .2s}
-.mission-card.drag-over-mission{border-color:var(--accent);background:var(--bg4)}
-.mission-head{padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;background:var(--bg4);user-select:none}
-.mission-head:hover{background:#1e1e48}
-.m-drag-handle{color:#444;cursor:grab;font-size:14px;padding:0 2px}
-.m-drag-handle:active{cursor:grabbing}
-.m-collapse{font-size:10px;color:var(--muted);min-width:10px}
-.m-name{font-weight:bold;font-size:13px;flex:1;outline:none;background:none;border:none;color:var(--text);font-family:inherit}
-.m-name[contenteditable=true]:focus{border-bottom:1px solid var(--accent)}
-.m-pbar-wrap{width:70px;height:7px;background:#333;border-radius:4px;overflow:hidden;flex-shrink:0}
-.m-pbar-fill{height:100%;border-radius:4px;transition:width .5s}
-.m-pct{font-size:11px;color:var(--muted);min-width:32px;text-align:right}
-.m-count{font-size:10px;color:#666;min-width:30px;text-align:right}
-.m-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s}
-.mission-head:hover .m-actions{opacity:1}
-.m-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 5px;border-radius:4px;transition:all .15s}
-.m-btn:hover{color:var(--text);background:var(--bg3)}
-.m-btn.del:hover{color:var(--red)}
-.mission-body{padding:8px}
-.mission-body.collapsed{display:none}
-.mission-footer{padding:6px 8px 8px;display:flex;gap:6px}
-.m-add-input{flex:1;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:4px 8px;border-radius:5px;font-family:inherit;font-size:12px;outline:none}
-.m-add-input:focus{border-color:var(--accent)}
-.m-add-btn{background:var(--accent);color:#fff;border:none;padding:4px 10px;border-radius:5px;cursor:pointer;font-size:12px}
-.m-add-btn:hover{background:var(--accent2)}
+#hamburger{
+  background:none;
+  border:none;
+  color:var(--text2);
+  cursor:pointer;
+  padding:6px;
+  border-radius:var(--radius-sm);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:color 0.15s,background 0.15s;
+  flex-shrink:0;
+}
+#hamburger:hover{color:var(--text);background:var(--bg5)}
+#hamburger svg{display:block}
 
-/* ── TODO ITEMS ── */
-.todo-item{display:flex;align-items:flex-start;gap:6px;padding:5px 6px;border-radius:6px;margin-bottom:2px;border:1px solid transparent;transition:background .12s;cursor:grab}
-.todo-item:hover{background:#1a1a38}
-.todo-item.dragging{opacity:.35;background:#2a1a5e}
-.todo-item.drag-over{border-color:var(--accent);background:#1a0040}
-.todo-cb{width:14px;height:14px;margin-top:2px;cursor:pointer;accent-color:var(--accent);flex-shrink:0}
-.todo-status{font-size:12px;min-width:22px;cursor:pointer;select:none;flex-shrink:0;margin-top:1px}
-.status-done{color:var(--green)}
-.status-ip{color:var(--blue)}
-.status-pending{color:var(--muted)}
-.todo-text{flex:1;line-height:1.45;word-break:break-word;outline:none;padding:1px 2px;border-radius:3px;border:1px solid transparent}
-.todo-text[contenteditable=true]:focus{border-color:var(--accent);background:#0d0d20}
-.todo-text.done{color:#444;text-decoration:line-through}
-.todo-id{font-size:10px;color:#444;min-width:24px;text-align:right;flex-shrink:0;margin-top:2px}
-.todo-acts{display:flex;gap:2px;opacity:0;transition:opacity .12s;flex-shrink:0}
-.todo-item:hover .todo-acts{opacity:1}
-.t-btn{background:none;border:none;color:var(--muted);cursor:pointer;padding:1px 4px;border-radius:3px;font-size:12px;line-height:1.4;transition:all .12s}
-.t-btn:hover{color:var(--text);background:var(--bg4)}
-.t-btn.del:hover{color:var(--red);background:#3b1010}
+#topbar-logo{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+#topbar-logo svg{flex-shrink:0}
+#topbar-logo h1{
+  font-size:15px;
+  font-weight:700;
+  background:linear-gradient(135deg,#a78bfa,#7c3aed,#6d28d9);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  letter-spacing:-0.02em;
+}
 
-/* ── BULK BAR ── */
-#bulk-bar{background:#1a0d3e;border-top:1px solid var(--accent);padding:7px 14px;display:none;align-items:center;gap:8px;flex-shrink:0}
-#bulk-bar.visible{display:flex}
-#bulk-count{color:var(--accent);font-weight:bold;font-size:12px}
+.stat-pill{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  background:var(--bg4);
+  border:1px solid var(--border);
+  padding:4px 10px;
+  border-radius:99px;
+  font-size:11px;
+  font-weight:500;
+  white-space:nowrap;
+  color:var(--text2);
+  transition:border-color 0.2s;
+}
+.stat-pill:hover{border-color:var(--border2)}
+.stat-pill .pill-val{font-weight:700;font-size:12px}
+.stat-pill.green{border-color:rgba(34,197,94,0.25)}
+.stat-pill.green .pill-val{color:var(--green)}
+.stat-pill.blue{border-color:rgba(59,130,246,0.25)}
+.stat-pill.blue .pill-val{color:var(--blue)}
 
-/* ── ADD MISSION MODAL ── */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;display:flex;align-items:center;justify-content:center}
-.modal{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;min-width:340px;max-width:500px}
-.modal h2{color:var(--accent);margin-bottom:16px;font-size:15px}
-.modal label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;margin-top:12px}
-.modal input,.modal textarea,.modal select{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:7px 10px;border-radius:6px;font-family:inherit;font-size:12px;outline:none}
-.modal input:focus,.modal textarea:focus{border-color:var(--accent)}
-.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
-.modal-btn{padding:7px 18px;border-radius:6px;border:none;cursor:pointer;font-size:13px;font-family:inherit}
-.modal-btn.cancel{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
-.modal-btn.ok{background:var(--accent);color:#fff}
+#topbar-progress{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-shrink:0;
+}
+#bar-wrap{
+  width:90px;
+  height:6px;
+  background:var(--bg5);
+  border-radius:99px;
+  overflow:hidden;
+}
+#bar-fill{
+  height:100%;
+  border-radius:99px;
+  transition:width 0.5s ease,background 0.5s;
+  background:var(--accent);
+}
+#bar-pct{
+  font-size:12px;
+  font-weight:700;
+  color:var(--accent);
+  min-width:34px;
+  font-variant-numeric:tabular-nums;
+}
 
-/* ── TOAST ── */
-#toast{position:fixed;bottom:20px;right:20px;background:var(--bg4);border:1px solid var(--accent);color:var(--text);padding:10px 18px;border-radius:8px;font-size:12px;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
-#toast.show{opacity:1}
+.conn-indicator{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  font-weight:500;
+  color:var(--text2);
+}
+#dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--muted);
+  flex-shrink:0;
+  transition:background 0.3s;
+}
+#dot.live{background:var(--green);box-shadow:0 0 6px rgba(34,197,94,0.6);animation:pulse-green 2s infinite}
+#dot.poll{background:var(--yellow);box-shadow:0 0 6px rgba(234,179,8,0.5)}
+#dot.dead{background:var(--red);box-shadow:0 0 6px rgba(239,68,68,0.4)}
+@keyframes pulse-green{0%,100%{box-shadow:0 0 4px rgba(34,197,94,0.4)}50%{box-shadow:0 0 10px rgba(34,197,94,0.8)}}
 
-/* ── EMPTY STATE ── */
-.empty{color:var(--muted);text-align:center;padding:30px;font-size:12px}
+.spill{flex:1;min-width:8px}
 
-/* ── RESPONSIVE ── */
-@media(max-width:640px){
-  #sidebar{width:0;min-width:0}
-  #sidebar.mobile-open{width:210px;position:absolute;z-index:500;height:100%;top:0}
-  #bar-wrap{display:none}
-  #add-text{width:140px}
+.tb-icon{
+  background:var(--bg4);
+  border:1px solid var(--border);
+  color:var(--text2);
+  padding:0;
+  width:32px;
+  height:32px;
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  font-size:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:all 0.15s;
+  flex-shrink:0;
+  white-space:nowrap;
+}
+.tb-icon:hover{background:var(--bg5);border-color:var(--border2);color:var(--text)}
+#gh-btn{
+  background:#161b22;
+  border:1px solid #30363d;
+  color:#e6edf3;
+  padding:0 14px;
+  height:32px;
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  font-size:12px;
+  font-weight:600;
+  font-family:var(--font);
+  display:flex;
+  align-items:center;
+  gap:6px;
+  transition:all 0.15s;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+#gh-btn:hover{background:#21262d;border-color:#8b949e}
+
+/* ── TOOLBAR ──────────────────────────────────────────────────────────────── */
+#toolbar{
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  padding:0 14px;
+  display:flex;
+  gap:6px;
+  align-items:center;
+  flex-wrap:wrap;
+  flex-shrink:0;
+  min-height:var(--toolbar-h);
+  row-gap:4px;
+}
+#srch{
+  background:var(--bg);
+  color:var(--text);
+  border:1px solid var(--border);
+  padding:6px 11px;
+  border-radius:var(--radius-sm);
+  font-family:var(--font);
+  font-size:13px;
+  width:180px;
+  transition:border-color 0.15s,box-shadow 0.15s;
+  outline:none;
+  font-size:16px; /* prevent zoom on iOS */
+}
+#srch:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.sel{
+  background:var(--bg);
+  color:var(--text);
+  border:1px solid var(--border);
+  padding:6px 9px;
+  border-radius:var(--radius-sm);
+  font-family:var(--font);
+  font-size:12px;
+  cursor:pointer;
+  outline:none;
+  transition:border-color 0.15s;
+}
+.sel:focus{border-color:var(--accent)}
+.btn{
+  background:var(--bg4);
+  color:var(--text2);
+  border:1px solid var(--border);
+  padding:5px 12px;
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  font-size:12px;
+  font-family:var(--font);
+  font-weight:500;
+  white-space:nowrap;
+  transition:all 0.15s ease;
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+.btn:hover{background:var(--bg5);border-color:var(--border2);color:var(--text)}
+.btn.pri{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:var(--accent);color:#fff;font-weight:600}
+.btn.pri:hover{background:linear-gradient(135deg,var(--accent2),var(--accent3));box-shadow:var(--shadow-accent)}
+.btn.grn{background:var(--green-dim);border-color:rgba(34,197,94,0.35);color:var(--green);font-weight:600}
+.btn.grn:hover{background:rgba(34,197,94,0.25);box-shadow:0 0 12px rgba(34,197,94,0.15)}
+.btn.red{background:transparent;border-color:rgba(239,68,68,0.3);color:var(--red)}
+.btn.red:hover{background:var(--red-dim);border-color:rgba(239,68,68,0.5);box-shadow:0 0 10px rgba(239,68,68,0.1)}
+.sep{width:1px;height:22px;background:var(--border);flex-shrink:0;margin:0 2px}
+
+/* ── BULK BAR ──────────────────────────────────────────────────────────────── */
+#bbar{
+  background:linear-gradient(90deg,rgba(124,58,237,0.12),rgba(109,40,217,0.08));
+  border-top:1px solid var(--border3);
+  border-bottom:1px solid var(--border);
+  padding:7px 16px;
+  display:none;
+  align-items:center;
+  gap:8px;
+  flex-shrink:0;
+  flex-wrap:wrap;
+}
+#bbar.vis{display:flex}
+#bcnt{
+  color:var(--accent);
+  font-weight:700;
+  font-size:12px;
+  min-width:80px;
+}
+
+/* ── BODY LAYOUT ──────────────────────────────────────────────────────────── */
+#body{display:flex;flex:1;overflow:hidden;position:relative}
+
+/* ── SIDEBAR ─────────────────────────────────────────────────────────────── */
+#sidebar{
+  width:var(--sidebar-w);
+  background:var(--bg3);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  flex-shrink:0;
+  transition:width 0.25s cubic-bezier(0.4,0,0.2,1),transform 0.25s cubic-bezier(0.4,0,0.2,1);
+  will-change:width;
+}
+#sidebar.closed{width:0;min-width:0}
+#sb-inner{flex:1;overflow-y:auto;padding:10px 8px}
+.sb-hdr{
+  font-size:10px;
+  color:var(--muted);
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  font-weight:600;
+  margin:8px 4px 6px;
+}
+.sb-m{
+  padding:7px 8px 7px 10px;
+  margin-bottom:4px;
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  border-left:2px solid transparent;
+  user-select:none;
+  transition:all 0.15s;
+  position:relative;
+  overflow:hidden;
+}
+.sb-m:hover{background:var(--bg5);border-left-color:var(--border2)}
+.sb-m.active{background:rgba(124,58,237,0.1);border-left-color:var(--accent)}
+.sb-mname{
+  font-size:12px;
+  font-weight:500;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:var(--text);
+}
+.sb-m.active .sb-mname{color:#c4b5fd}
+.sb-bw{height:3px;background:rgba(255,255,255,0.06);border-radius:99px;margin-top:5px;overflow:hidden}
+.sb-bf{height:100%;border-radius:99px;transition:width 0.4s ease}
+.sb-cnt{font-size:10px;color:var(--muted);margin-top:3px;display:flex;justify-content:space-between;align-items:center}
+.sb-cnt-pct{font-weight:600;font-variant-numeric:tabular-nums}
+#sb-addm{
+  width:100%;
+  background:none;
+  border:1px dashed var(--border);
+  color:var(--muted);
+  padding:6px;
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  font-size:11px;
+  font-family:var(--font);
+  font-weight:500;
+  margin-top:8px;
+  transition:all 0.15s;
+}
+#sb-addm:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-glow)}
+#oc-section{padding:10px 8px;border-top:1px solid var(--border)}
+.oc-dot{font-size:11px;display:flex;align-items:center;gap:6px;font-weight:500}
+
+/* ── SIDEBAR OVERLAY (mobile) ─────────────────────────────────────────────── */
+#sidebar-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  backdrop-filter:blur(2px);
+  z-index:150;
+}
+#sidebar-overlay.vis{display:block}
+
+/* ── CONTENT ────────────────────────────────────────────────────────────────── */
+#content{flex:1;overflow-y:auto;padding:14px 16px}
+
+/* ── MISSION CARDS ───────────────────────────────────────────────────────── */
+.mc{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  margin-bottom:12px;
+  overflow:hidden;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.mc:hover{border-color:var(--border2)}
+.mc.dov{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),var(--shadow-accent)}
+
+.mhead{
+  padding:11px 14px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:linear-gradient(90deg,var(--bg4) 0%,var(--bg2) 100%);
+  user-select:none;
+  transition:background 0.2s;
+  position:relative;
+}
+.mhead:hover{background:linear-gradient(90deg,var(--bg5) 0%,rgba(26,26,56,0.8) 100%)}
+
+.mdrag{
+  color:var(--muted);
+  cursor:grab;
+  font-size:16px;
+  padding:0 2px;
+  transition:color 0.15s;
+}
+.mdrag:hover{color:var(--text2)}
+.mico{font-size:10px;color:var(--muted);min-width:10px;transition:transform 0.2s}
+.mname-wrap{flex:1;min-width:0}
+.mname{
+  font-weight:600;
+  font-size:13px;
+  outline:none;
+  background:none;
+  border:none;
+  border-bottom:1px solid transparent;
+  color:var(--text);
+  font-family:var(--font);
+  width:100%;
+  cursor:pointer;
+  padding:1px 0;
+  transition:border-color 0.15s;
+}
+.mname:focus{border-bottom-color:var(--accent);cursor:text}
+
+.mpbar{
+  width:72px;
+  height:8px;
+  background:rgba(255,255,255,0.06);
+  border-radius:99px;
+  overflow:hidden;
+  flex-shrink:0;
+}
+.mpfill{height:100%;border-radius:99px;transition:width 0.5s ease}
+.mpct{
+  font-size:12px;
+  font-weight:700;
+  color:var(--accent);
+  min-width:34px;
+  text-align:right;
+  font-variant-numeric:tabular-nums;
+}
+.mcnt{
+  font-size:11px;
+  color:var(--muted);
+  min-width:32px;
+  text-align:right;
+  font-variant-numeric:tabular-nums;
+  font-weight:500;
+}
+
+.marr{display:flex;gap:3px;flex-shrink:0}
+.marr button{
+  background:none;
+  border:1px solid var(--border);
+  color:var(--muted);
+  cursor:pointer;
+  width:24px;
+  height:24px;
+  border-radius:var(--radius-sm);
+  font-size:12px;
+  line-height:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:all 0.15s;
+}
+.marr button:hover{background:var(--bg5);border-color:var(--border2);color:var(--text)}
+
+.macts{display:flex;gap:3px;opacity:0;flex-shrink:0;transition:opacity 0.15s}
+.mhead:hover .macts{opacity:1}
+
+.mb2{
+  background:none;
+  border:none;
+  color:var(--muted);
+  cursor:pointer;
+  font-size:11px;
+  font-family:var(--font);
+  font-weight:500;
+  padding:3px 7px;
+  border-radius:var(--radius-sm);
+  border:1px solid transparent;
+  transition:all 0.15s;
+  white-space:nowrap;
+}
+.mb2:hover{color:var(--text);background:var(--bg5);border-color:var(--border)}
+.mb2.del:hover{color:var(--red);background:var(--red-dim);border-color:rgba(239,68,68,0.3)}
+.mb2.run:hover{color:var(--green);background:var(--green-dim);border-color:rgba(34,197,94,0.3)}
+
+/* Delete button pill */
+.mb2.del{
+  color:rgba(239,68,68,0.6);
+}
+
+.mbody{padding:8px}
+.mbody.col{display:none}
+
+.mfoot{padding:4px 8px 10px;display:flex;gap:6px}
+.madd-inp{
+  flex:1;
+  background:var(--bg);
+  color:var(--text);
+  border:1px solid var(--border);
+  padding:6px 10px;
+  border-radius:var(--radius-sm);
+  font-family:var(--font);
+  font-size:13px;
+  outline:none;
+  transition:border-color 0.15s,box-shadow 0.15s;
+  font-size:16px;
+}
+.madd-inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.madd-btn{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;
+  border:none;
+  padding:6px 14px;
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  font-size:13px;
+  font-family:var(--font);
+  font-weight:600;
+  transition:all 0.15s;
+}
+.madd-btn:hover{background:linear-gradient(135deg,var(--accent2),var(--accent3));box-shadow:var(--shadow-accent)}
+
+/* ── TODO ITEMS ───────────────────────────────────────────────────────────── */
+.ti{
+  display:flex;
+  align-items:flex-start;
+  gap:6px;
+  padding:6px 8px;
+  border-radius:var(--radius-sm);
+  margin-bottom:2px;
+  border:1px solid transparent;
+  cursor:grab;
+  transition:background 0.12s,border-color 0.12s;
+  min-height:36px;
+}
+.ti:hover{background:var(--bg4)}
+.ti.dragging{opacity:0.3;will-change:transform}
+.ti.dov{border-color:var(--accent);background:rgba(124,58,237,0.08)}
+
+.ti input[type=checkbox]{
+  width:15px;
+  height:15px;
+  margin-top:3px;
+  cursor:pointer;
+  accent-color:var(--accent);
+  flex-shrink:0;
+  border-radius:4px;
+}
+
+.tstat{
+  font-size:13px;
+  min-width:20px;
+  cursor:pointer;
+  flex-shrink:0;
+  margin-top:2px;
+  user-select:none;
+  transition:transform 0.1s;
+}
+.tstat:hover{transform:scale(1.15)}
+.sd{color:var(--green)}
+.si{color:var(--blue)}
+.sp{color:var(--muted)}
+
+.ttext{
+  flex:1;
+  line-height:1.5;
+  word-break:break-word;
+  outline:none;
+  padding:1px 4px;
+  border-radius:4px;
+  border:1px solid transparent;
+  font-size:13px;
+  transition:border-color 0.15s,background 0.15s;
+}
+.ttext:focus{border-color:var(--accent);background:rgba(124,58,237,0.06)}
+.ttext.done{color:var(--muted);text-decoration:line-through;opacity:0.6}
+
+.tid{
+  font-size:10px;
+  color:var(--muted);
+  min-width:28px;
+  text-align:right;
+  flex-shrink:0;
+  margin-top:4px;
+  font-family:var(--font-mono);
+  font-weight:600;
+}
+
+.tarr{display:flex;gap:2px;flex-shrink:0;opacity:0;transition:opacity 0.15s}
+.ti:hover .tarr{opacity:1}
+.tarr button{
+  background:none;
+  border:1px solid var(--border);
+  color:var(--muted);
+  cursor:pointer;
+  width:22px;
+  height:22px;
+  border-radius:4px;
+  font-size:11px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:all 0.1s;
+}
+.tarr button:hover{background:var(--bg5);border-color:var(--border2);color:var(--text)}
+
+.tacts{display:flex;gap:2px;flex-shrink:0;opacity:0;transition:opacity 0.15s}
+.ti:hover .tacts{opacity:1}
+.tb{
+  background:none;
+  border:none;
+  color:var(--muted);
+  cursor:pointer;
+  padding:2px 5px;
+  border-radius:4px;
+  font-size:12px;
+  line-height:1.4;
+  font-family:var(--font);
+  min-height:22px;
+  display:flex;
+  align-items:center;
+  transition:all 0.1s;
+}
+.tb:hover{color:var(--text);background:var(--bg5)}
+.tb.del:hover{color:var(--red);background:var(--red-dim)}
+.tb.run:hover{color:var(--green);background:var(--green-dim)}
+
+.empty{color:var(--muted);text-align:center;padding:28px;font-size:13px;font-weight:500}
+
+/* ── TERMINAL DRAWER ─────────────────────────────────────────────────────── */
+#term-drawer{
+  background:#020208;
+  border-top:1px solid var(--accent);
+  flex-shrink:0;
+  display:none;
+  flex-direction:column;
+  max-height:340px;
+  box-shadow:0 -4px 24px rgba(124,58,237,0.15);
+}
+#term-drawer.vis{display:flex}
+#term-hdr{
+  background:#0a0a14;
+  padding:7px 14px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-shrink:0;
+  border-bottom:1px solid rgba(124,58,237,0.2);
+}
+#term-hdr span{
+  color:#a78bfa;
+  font-weight:700;
+  font-size:12px;
+  font-family:var(--font-mono);
+  flex:1;
+}
+#term-tabs{display:flex;gap:4px;flex:2;overflow-x:auto}
+.term-tab{
+  background:rgba(124,58,237,0.08);
+  border:1px solid var(--border);
+  color:var(--muted);
+  padding:3px 10px;
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  font-size:11px;
+  font-family:var(--font-mono);
+  white-space:nowrap;
+  transition:all 0.15s;
+}
+.term-tab:hover{border-color:var(--border2);color:var(--text2)}
+.term-tab.active{background:rgba(124,58,237,0.25);color:#c4b5fd;border-color:var(--accent)}
+.term-tab.running::before{content:'● ';color:var(--green)}
+.term-tab.done::before{content:'✓ ';color:var(--muted)}
+
+#term-body{
+  flex:1;
+  overflow-y:auto;
+  padding:10px 16px;
+  font-size:12px;
+  font-family:var(--font-mono);
+  line-height:1.6;
+  min-height:100px;
+}
+.term-line{white-space:pre-wrap;word-break:break-all;color:#a0f0a0;text-shadow:0 0 8px rgba(74,222,128,0.3)}
+.term-line.err{color:#f87171;text-shadow:0 0 8px rgba(248,113,113,0.3)}
+.term-line.sys{color:#a78bfa;text-shadow:0 0 8px rgba(167,139,250,0.3)}
+#term-empty{color:var(--muted);padding:20px;text-align:center;font-size:12px;font-family:var(--font)}
+
+#term-resize{
+  height:5px;
+  background:rgba(124,58,237,0.15);
+  cursor:ns-resize;
+  flex-shrink:0;
+  transition:background 0.15s;
+}
+#term-resize:hover{background:var(--accent)}
+
+/* ── MODAL ───────────────────────────────────────────────────────────────── */
+.modal-ov{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.7);
+  backdrop-filter:blur(6px);
+  z-index:1000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  animation:fadeIn 0.15s ease;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+.modal{
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:var(--radius-lg);
+  padding:24px;
+  min-width:340px;
+  max-width:480px;
+  width:100%;
+  max-height:90vh;
+  overflow-y:auto;
+  box-shadow:var(--shadow),0 0 40px rgba(124,58,237,0.15);
+  animation:slideUp 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  will-change:transform;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px) scale(0.98)}to{opacity:1;transform:none}}
+
+.modal h2{
+  background:linear-gradient(135deg,#c4b5fd,#7c3aed);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin-bottom:16px;
+  font-size:16px;
+  font-weight:700;
+}
+.modal label{
+  display:block;
+  font-size:11px;
+  color:var(--text2);
+  font-weight:600;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  margin:12px 0 4px;
+}
+.modal input,.modal textarea,.modal select{
+  width:100%;
+  background:var(--bg);
+  color:var(--text);
+  border:1px solid var(--border);
+  padding:8px 11px;
+  border-radius:var(--radius-sm);
+  font-family:var(--font);
+  font-size:13px;
+  outline:none;
+  transition:border-color 0.15s,box-shadow 0.15s;
+  font-size:16px;
+}
+.modal input:focus,.modal textarea:focus,.modal select:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px var(--accent-glow);
+}
+.mbtns{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+.mok{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;
+  border:none;
+  padding:8px 20px;
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  font-size:13px;
+  font-weight:600;
+  font-family:var(--font);
+  transition:all 0.15s;
+}
+.mok:hover{background:linear-gradient(135deg,var(--accent2),var(--accent3));box-shadow:var(--shadow-accent)}
+.mcancel{
+  background:var(--bg4);
+  color:var(--text2);
+  border:1px solid var(--border);
+  padding:8px 20px;
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  font-size:13px;
+  font-weight:500;
+  font-family:var(--font);
+  transition:all 0.15s;
+}
+.mcancel:hover{background:var(--bg5);border-color:var(--border2);color:var(--text)}
+
+/* ── TOAST ───────────────────────────────────────────────────────────────── */
+#toast{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-left:3px solid var(--accent);
+  color:var(--text);
+  padding:10px 16px;
+  border-radius:var(--radius);
+  font-size:12px;
+  font-weight:500;
+  z-index:9999;
+  opacity:0;
+  transform:translateY(8px);
+  transition:opacity 0.25s ease,transform 0.25s ease;
+  pointer-events:none;
+  max-width:320px;
+  box-shadow:var(--shadow);
+}
+#toast.show{opacity:1;transform:none}
+
+/* ── MOBILE: Bottom Nav ──────────────────────────────────────────────────── */
+#bottom-nav{
+  display:none;
+  background:var(--bg2);
+  border-top:1px solid var(--border);
+  flex-shrink:0;
+  height:56px;
+  z-index:100;
+}
+.bn-item{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  cursor:pointer;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:500;
+  min-height:44px;
+  transition:color 0.15s;
+  border:none;
+  background:none;
+  font-family:var(--font);
+}
+.bn-item:hover,.bn-item.active{color:var(--accent)}
+.bn-icon{font-size:18px;line-height:1}
+
+/* ── RESPONSIVE ─────────────────────────────────────────────────────────── */
+@media(max-width:768px){
+  :root{--sidebar-w:260px}
+
+  #sidebar{
+    position:fixed;
+    top:0;
+    left:0;
+    height:100%;
+    z-index:160;
+    transform:translateX(-100%);
+    width:var(--sidebar-w) !important;
+    transition:transform 0.25s cubic-bezier(0.4,0,0.2,1);
+  }
+  #sidebar.open{transform:translateX(0)}
+  #sidebar.closed{transform:translateX(-100%);width:var(--sidebar-w) !important}
+
+  .stat-pill:not(#stat-done):not(#stat-active){display:none}
+  #topbar-progress{display:none}
+
+  .sep{display:none}
+  #toolbar{padding:6px 10px;gap:5px}
+  #srch{width:140px}
+
+  #content{padding:10px}
+
+  #bottom-nav{display:flex}
+
+  .btn.small-hide{display:none}
+}
+
+@media(max-width:480px){
+  #topbar{padding:0 10px;gap:7px}
+  .stat-pill{display:none}
+  #gh-btn .gh-text{display:none}
 }
 </style>
 </head>
 <body>
 
+<!-- OFFLINE BANNER -->
+<div id="offline-banner">⚡ You are offline — showing cached data</div>
+
 <!-- TOP BAR -->
 <div id="topbar">
-  <button class="icon-btn" onclick="toggleSidebar()" title="Toggle sidebar">&#9776;</button>
-  <h1>&#9670; RLP Dashboard</h1>
-  <div class="stat-pill">Total <span id="s-total">0</span></div>
-  <div class="stat-pill" style="border-color:#22c55e44">Done <span id="s-done" style="color:var(--green)">0</span></div>
-  <div class="stat-pill" style="border-color:#3b82f644">Active <span id="s-inprog" style="color:var(--blue)">0</span></div>
-  <div class="stat-pill" style="border-color:#88888844">Pending <span id="s-pending">0</span></div>
-  <div id="bar-wrap"><div id="bar-fill" style="width:0%"></div></div>
-  <div id="bar-pct">0%</div>
-  <div style="display:flex;align-items:center;gap:5px;font-size:12px">
-    <span id="ws-dot" class="dead">&#9679;</span>
-    <span id="ws-label">Offline</span>
+  <button id="hamburger" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+      <rect y="2" width="16" height="1.5" rx="1"/>
+      <rect y="7.25" width="16" height="1.5" rx="1"/>
+      <rect y="12.5" width="16" height="1.5" rx="1"/>
+    </svg>
+  </button>
+
+  <div id="topbar-logo">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+      <path d="M10 2L3 6v8l7 4 7-4V6L10 2z" fill="rgba(124,58,237,0.3)" stroke="#7c3aed" stroke-width="1.2"/>
+      <path d="M10 6l-4 2.3v4.4l4 2.3 4-2.3V8.3L10 6z" fill="rgba(124,58,237,0.5)"/>
+      <circle cx="10" cy="10" r="1.5" fill="#a78bfa"/>
+    </svg>
+    <h1>RLP Dashboard</h1>
   </div>
-  <div class="topbar-spacer"></div>
-  <button class="icon-btn" onclick="configBackend()" title="Set backend URL">&#9881; Backend</button>
-  <button class="icon-btn" onclick="triggerGitSync()" title="Push to GitHub now">&#8645; Sync</button>
-  <button id="github-btn" class="icon-btn" onclick="window.open('https://github.com/Michaelunkai/rlp-dashboard','_blank')" title="Open GitHub repo">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-    GitHub
+
+  <div class="stat-pill">
+    <span>Total</span><span class="pill-val" id="s-t">0</span>
+  </div>
+  <div class="stat-pill green" id="stat-done">
+    <span>Done</span><span class="pill-val" id="s-d">0</span>
+  </div>
+  <div class="stat-pill blue" id="stat-active">
+    <span>Active</span><span class="pill-val" id="s-a">0</span>
+  </div>
+  <div class="stat-pill">
+    <span>Pending</span><span class="pill-val" id="s-p">0</span>
+  </div>
+
+  <div id="topbar-progress">
+    <div id="bar-wrap"><div id="bar-fill"></div></div>
+    <div id="bar-pct">0%</div>
+  </div>
+
+  <div class="conn-indicator">
+    <div id="dot" class="dead"></div>
+    <span id="connlbl">Offline</span>
+  </div>
+
+  <div class="spill"></div>
+
+  <button class="tb-icon" onclick="configBackend()" title="Set backend URL">⚙</button>
+  <button class="tb-icon" onclick="triggerSync()" title="Sync to GitHub">⇅</button>
+  <button id="gh-btn" onclick="window.open('https://github.com/Michaelunkai/rlp-dashboard','_blank')">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+    <span class="gh-text">GitHub</span>
   </button>
 </div>
 
 <!-- TOOLBAR -->
 <div id="toolbar">
-  <input type="text" id="search-box" placeholder="&#128269; Search todos..." oninput="onSearch(this.value)">
-  <select class="tb-select" id="status-filter" onchange="onFilter()">
+  <input id="srch" type="text" placeholder="🔍 Search..." oninput="onSearch(this.value)">
+  <select class="sel" id="sf" onchange="onFilter()">
     <option value="all">All Status</option>
     <option value="pending">Pending</option>
     <option value="in_progress">In Progress</option>
     <option value="done">Done</option>
   </select>
-  <div class="tb-sep"></div>
-  <button class="tb-btn primary" onclick="openAddTodoModal()">+ Todo</button>
-  <button class="tb-btn" onclick="openAddMissionModal()">+ Mission</button>
-  <div class="tb-sep"></div>
-  <button class="tb-btn" onclick="collapseAll()">&#8593; Collapse All</button>
-  <button class="tb-btn" onclick="expandAll()">&#8595; Expand All</button>
-  <div class="tb-sep"></div>
-  <button class="tb-btn" onclick="exportAll()">&#8595; JSON</button>
-  <button class="tb-btn" onclick="exportMissionMd()">&#8595; MD</button>
-  <div class="tb-sep"></div>
-  <button class="tb-btn danger" onclick="clearDoneTodos()">&#10005; Clear Done</button>
+  <div class="sep"></div>
+  <button class="btn pri" onclick="openAddTodo()">+ Todo</button>
+  <button class="btn" onclick="openAddMission()">+ Mission</button>
+  <div class="sep"></div>
+  <button class="btn small-hide" onclick="collapseAll()">↑ Collapse</button>
+  <button class="btn small-hide" onclick="expandAll()">↓ Expand</button>
+  <div class="sep"></div>
+  <button class="btn small-hide" onclick="exportJSON()">↓ JSON</button>
+  <button class="btn small-hide" onclick="exportMD()">↓ MD</button>
+  <button class="btn red small-hide" onclick="clearDone()">✕ Clear Done</button>
 </div>
 
 <!-- BULK BAR -->
-<div id="bulk-bar">
-  <span id="bulk-count">0 selected</span>
-  <button class="tb-btn primary" onclick="bulkAction('done')">&#10003; Mark Done</button>
-  <button class="tb-btn" onclick="bulkAction('in_progress')">&#9654; In Progress</button>
-  <button class="tb-btn" onclick="bulkAction('pending')">&#9633; Pending</button>
-  <button class="tb-btn" id="bulk-move-btn" onclick="openBulkMoveModal()">&#10142; Move</button>
-  <button class="tb-btn danger" onclick="bulkAction('delete')">&#10005; Delete</button>
-  <button class="tb-btn" onclick="clearSelection()" style="margin-left:auto">&#10006; Clear</button>
+<div id="bbar">
+  <span id="bcnt">0 selected</span>
+  <button class="btn pri" onclick="bulk('done')">✓ Done</button>
+  <button class="btn" onclick="bulk('in_progress')">▶ Active</button>
+  <button class="btn" onclick="bulk('pending')">○ Pending</button>
+  <button class="btn" onclick="openBulkMove()">→ Move</button>
+  <button class="btn grn" onclick="bulk('run')">▶▶ Run Selected</button>
+  <button class="btn red" onclick="bulk('delete')">✕ Delete</button>
+  <button class="btn" onclick="clearSel()" style="margin-left:auto">✖ Clear</button>
 </div>
 
 <!-- BODY -->
 <div id="body">
-  <!-- SIDEBAR -->
+  <!-- Sidebar overlay for mobile -->
+  <div id="sidebar-overlay" onclick="closeSidebarMobile()"></div>
+
   <div id="sidebar">
-    <div id="sidebar-inner">
-      <div class="sb-section">Missions</div>
-      <div id="sb-missions"></div>
-      <button class="sb-add-mission" onclick="openAddMissionModal()">+ Add Mission</button>
+    <div id="sb-inner">
+      <div class="sb-hdr">Missions</div>
+      <div id="sb-list"></div>
+      <button id="sb-addm" onclick="openAddMission()">+ Add Mission</button>
     </div>
-    <div id="openclaw-section">
-      <div class="sb-section">OpenClaw</div>
-      <div id="oc-status" class="oc-badge oc-offline">&#9679; Checking...</div>
+    <div id="oc-section">
+      <div class="sb-hdr">OpenClaw</div>
+      <div id="oc-st" class="oc-dot" style="color:var(--muted)">
+        <span style="font-size:8px">●</span> Checking...
+      </div>
     </div>
   </div>
 
-  <!-- MAIN -->
-  <div id="content">
-    <div id="missions-container"></div>
-  </div>
+  <div id="content"><div id="mc-wrap"></div></div>
 </div>
 
-<!-- TOAST -->
-<div id="toast"></div>
+<!-- TERMINAL DRAWER -->
+<div id="term-drawer">
+  <div id="term-resize"></div>
+  <div id="term-hdr">
+    <span>▶ Bot Terminal</span>
+    <div id="term-tabs"></div>
+    <button class="btn" style="font-size:11px;padding:2px 8px" onclick="stopActive()">■ Stop</button>
+    <button class="btn" style="font-size:11px;padding:2px 8px" onclick="clearTerm()">✕ Clear</button>
+    <button class="btn" style="font-size:11px;padding:2px 8px;margin-left:4px" onclick="closeTerm()">↙ Hide</button>
+  </div>
+  <div id="term-body"><div id="term-empty">Bot output will appear here. Click ▶ Run on any todo or mission.</div></div>
+</div>
 
-<!-- MODALS (injected by JS) -->
+<!-- BOTTOM NAV (mobile) -->
+<nav id="bottom-nav">
+  <button class="bn-item" onclick="mFilter='all';render()">
+    <span class="bn-icon">⊞</span>
+    <span>Dashboard</span>
+  </button>
+  <button class="bn-item" onclick="openAddMission()">
+    <span class="bn-icon">＋</span>
+    <span>Mission</span>
+  </button>
+  <button class="bn-item" onclick="document.getElementById('srch').focus()">
+    <span class="bn-icon">⌕</span>
+    <span>Search</span>
+  </button>
+  <button class="bn-item" onclick="openAddTodo()">
+    <span class="bn-icon">✏</span>
+    <span>Add Todo</span>
+  </button>
+</nav>
+
+<div id="toast"></div>
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const GITHUB_REPO = 'https://github.com/Michaelunkai/rlp-dashboard';
+const GITHUB = 'https://github.com/Michaelunkai/rlp-dashboard';
 const IS_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+let BACKEND = IS_LOCAL ? '' : null;
+let WS_URL  = IS_LOCAL ? ('ws://' + location.host) : null;
+const CACHE_KEY = 'rlp_state_v1';
+const BACKEND_KEY = 'rlp_backend';
+const BACKEND_LAST_GOOD = 'rlp_backend_last_good';
+let writeQueue = JSON.parse(localStorage.getItem('rlp_write_queue')||'[]');
+
+// Fetch with hard timeout (ms)
+function fetchT(url, opts, ms=2500) {
+  const ctrl = new AbortController();
+  const t = setTimeout(()=>ctrl.abort(), ms);
+  return fetch(url, {...(opts||{}), signal:ctrl.signal}).finally(()=>clearTimeout(t));
+}
 
 async function resolveBackend() {
-  // 1. localStorage override
-  const stored = localStorage.getItem('rlp_backend');
-  if (stored) { console.log('[backend] using stored:', stored); return stored; }
-  // 2. Try tunnel-config.json on this Netlify origin (redeployed automatically on server restart)
-  try {
-    const r = await fetch('/tunnel-config.json?_=' + Date.now());
-    if (r.ok) { const d = await r.json(); if (d.tunnelUrl) { console.log('[backend] from netlify static:', d.tunnelUrl); return d.tunnelUrl; } }
-  } catch(e) {}
-  // 3. Try GitHub raw (updated within ~15s of server restart)
-  try {
-    const r = await fetch('https://raw.githubusercontent.com/Michaelunkai/rlp-dashboard/main/public/tunnel-config.json?_=' + Date.now());
-    if (r.ok) { const d = await r.json(); if (d.tunnelUrl) { console.log('[backend] from github:', d.tunnelUrl); return d.tunnelUrl; } }
-  } catch(e) {}
-  console.warn('[backend] no backend URL found');
-  return null;
+  // 1. User-configured URL — instant
+  const stored = localStorage.getItem(BACKEND_KEY);
+  if (stored) return stored;
+  // 2. Last known good URL — instant
+  const lastGood = localStorage.getItem(BACKEND_LAST_GOOD);
+  // 3. Tunnel config from both sources in parallel — race
+  const sources = [
+    '/tunnel-config.json?_='+Date.now(),
+    'https://raw.githubusercontent.com/Michaelunkai/rlp-dashboard/main/public/tunnel-config.json?_='+Date.now()
+  ];
+  const tryFetch = src => fetchT(src,{},2000).then(r=>r.ok?r.json():null).then(d=>d&&d.tunnelUrl?d.tunnelUrl:null).catch(()=>null);
+  const [r1, r2] = await Promise.all([tryFetch(sources[0]), tryFetch(sources[1])]);
+  const found = r1 || r2;
+  if (found) { localStorage.setItem(BACKEND_LAST_GOOD, found); return found; }
+  return lastGood || null;
 }
-
-// Keep retrying backend resolution until connected
-async function autoReconnect() {
-  if (wsAlive || IS_LOCAL) return;
-  setWsStatus('poll', 'Reconnecting...');
-  const url = await resolveBackend();
-  if (url && url !== BACKEND) {
-    console.log('[autoReconnect] new backend URL:', url);
-    BACKEND = url;
-    BACKEND_WS = url.replace('https://', 'wss://').replace('http://', 'ws://');
-    localStorage.removeItem('rlp_backend'); // let it rediscover next time
-    connect();
-    fetchState();
-  }
-}
-
-let BACKEND = IS_LOCAL ? '' : null;
-let BACKEND_WS = IS_LOCAL ? ('ws://' + location.host) : null;
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
-let state = { todos: [], missionExplanations: {} };
-let ws = null;
-let wsAlive = false;
-let searchQ = '';
-let statusFilter = 'all';
-let missionFilter = 'all';
-let selectedIds = new Set();
-let collapsedMissions = new Set();
-let dragSrcId = null;
-let dragMissionName = null;
+// Load cached state immediately so UI is populated before any network call
+const _cached = localStorage.getItem(CACHE_KEY);
+let state = _cached ? JSON.parse(_cached) : { todos:[], missionExplanations:{} };
+let ws = null, wsAlive = false;
+let searchQ = '', sfVal = 'all', mFilter = 'all';
+let selIds = new Set();
+let collapsed = new Set();
+let dragTodoId = null, dragMission = null;
 let undoStack = [];
+let bots = {};
+let activeBot = null;
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 (async () => {
+  // Render immediately from cache — zero wait
+  if (state.todos.length) render();
+
+  document.addEventListener('keydown', onKey);
+  initTermResize();
+
+  // Offline banner
+  const offBanner = document.getElementById('offline-banner');
+  window.addEventListener('online',  () => { offBanner.classList.remove('vis'); replayWriteQueue(); fetchState(); });
+  window.addEventListener('offline', () => offBanner.classList.add('vis'));
+  if (!navigator.onLine) offBanner.classList.add('vis');
+
+  // Register service worker
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+
+  // Resolve backend (parallel fetch, ≤2.5s) then connect + fetch fresh
   if (!IS_LOCAL) {
-    BACKEND = await resolveBackend();
-    if (BACKEND) BACKEND_WS = BACKEND.replace('https://', 'wss://').replace('http://', 'ws://');
+    BACKEND = await resolveBackend(); // guaranteed ≤2.5s
+    if (BACKEND) WS_URL = BACKEND.replace('https://','wss://').replace('http://','ws://');
   }
   connect();
-  fetchState();
+  fetchState(); // background refresh — renders over cache when ready
   checkOC();
-  setInterval(() => { if (!wsAlive) fetchState(); }, 5000);
-  setInterval(() => { if (!wsAlive) autoReconnect(); }, 12000);
-  setInterval(checkOC, 20000);
-  // Keyboard shortcuts
-  document.addEventListener('keydown', handleKey);
+
+  // Retry cycle: every 4s if not live
+  setInterval(() => { if (!wsAlive) { fetchState(); autoReconnect(); } }, 4000);
+  setInterval(checkOC, 25000);
 })();
 
-// ── BACKEND ───────────────────────────────────────────────────────────────────
+async function autoReconnect() {
+  const url = await resolveBackend();
+  if (url && url !== BACKEND) {
+    BACKEND = url; WS_URL = url.replace('https://','wss://').replace('http://','ws://');
+    localStorage.setItem(BACKEND_LAST_GOOD, url);
+    connect();
+  }
+}
+
+// Replay queued writes after coming back online
+async function replayWriteQueue() {
+  if (!writeQueue.length || !BACKEND) return;
+  const q = [...writeQueue]; writeQueue = [];
+  localStorage.setItem('rlp_write_queue','[]');
+  for (const {path, body} of q) {
+    try { await fetch((BACKEND||'')+path, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); }
+    catch(e) { writeQueue.push({path,body}); }
+  }
+  localStorage.setItem('rlp_write_queue', JSON.stringify(writeQueue));
+  fetchState();
+}
+
+// ── API ───────────────────────────────────────────────────────────────────────
 async function api(path, body) {
-  const url = (BACKEND || '') + path;
-  const opts = body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {};
-  const r = await fetch(url, opts);
+  if (body && !navigator.onLine) {
+    // Queue write for when we're back online; optimistic update already applied by caller
+    writeQueue.push({path, body});
+    localStorage.setItem('rlp_write_queue', JSON.stringify(writeQueue));
+    return {};
+  }
+  const r = await fetchT((BACKEND||'') + path, body ? { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) } : {}, 5000);
   return r.json();
 }
 
 async function fetchState() {
+  // Try live backend first
+  if (BACKEND) {
+    try {
+      const d = await fetchT((BACKEND||'')+'/api/rlp-state',{},4000).then(r=>r.json());
+      if (d && d.todos) {
+        state = d; localStorage.setItem(CACHE_KEY, JSON.stringify(d)); render(); return;
+      }
+    } catch(e) {}
+  }
+  // Fallback: read rlp-state.json directly from GitHub (always up-to-date, no server needed)
   try {
-    const d = await api('/api/rlp-state');
-    state = d;
-    render();
-  } catch(e) { setWsStatus('dead', 'Offline'); }
+    const ghUrl = 'https://raw.githubusercontent.com/Michaelunkai/rlp-dashboard/main/public/rlp-state.json?_='+Date.now();
+    const d = await fetchT(ghUrl,{},4000).then(r=>r.json());
+    if (d && d.todos) {
+      state = d; localStorage.setItem(CACHE_KEY, JSON.stringify(d)); render();
+      setConn('poll','GitHub'); return;
+    }
+  } catch(e) {}
+  // Last resort: render from localStorage cache
+  const cached = localStorage.getItem(CACHE_KEY);
+  if (cached) { try { state = JSON.parse(cached); render(); } catch(e) {} }
+  setConn('dead','Offline');
 }
 
 function configBackend() {
-  const url = prompt('Backend URL (tunnel or localhost:3001):', BACKEND || '');
-  if (url !== null) {
-    if (url) { localStorage.setItem('rlp_backend', url); }
-    else { localStorage.removeItem('rlp_backend'); }
-    location.reload();
-  }
+  const u = prompt('Backend URL:', BACKEND||'');
+  if (u !== null) { if (u) localStorage.setItem('rlp_backend', u); else localStorage.removeItem('rlp_backend'); location.reload(); }
 }
-
-async function triggerGitSync() {
-  try { await api('/api/github/sync', {}); toast('Sync triggered'); }
-  catch(e) { toast('Sync failed — backend offline'); }
-}
+async function triggerSync() { try { await api('/api/github/sync',{}); toast('Sync started'); } catch(e) { toast('Backend offline'); } }
 
 // ── WEBSOCKET ─────────────────────────────────────────────────────────────────
 function connect() {
-  if (!BACKEND_WS) { setWsStatus('poll', 'Polling'); return; }
+  if (!WS_URL) { setConn('poll','Polling'); return; }
   try {
-    ws = new WebSocket(BACKEND_WS);
-    ws.onopen = () => { wsAlive = true; setWsStatus('live', 'Live'); };
-    ws.onclose = () => { wsAlive = false; setWsStatus('dead', 'Reconnecting'); setTimeout(connect, 3000); };
-    ws.onerror = () => { wsAlive = false; setWsStatus('poll', 'Polling'); };
-    ws.onmessage = (e) => {
+    ws = new WebSocket(WS_URL);
+    ws.onopen = () => { wsAlive=true; setConn('live','Live'); };
+    ws.onclose = () => { wsAlive=false; setConn('dead','Reconnecting'); setTimeout(connect,3000); };
+    ws.onerror = () => { wsAlive=false; setConn('poll','Polling'); };
+    ws.onmessage = e => {
       const msg = JSON.parse(e.data);
       if (msg.type === 'state') { state = msg.data; render(); }
-      if (msg.type === 'config' && msg.data.tunnelUrl) {
-        BACKEND = msg.data.tunnelUrl;
-        BACKEND_WS = BACKEND.replace('https://', 'wss://').replace('http://', 'ws://');
-      }
+      if (msg.type === 'config' && msg.data.tunnelUrl) { BACKEND = msg.data.tunnelUrl; WS_URL = BACKEND.replace('https://','wss://').replace('http://','ws://'); }
+      if (msg.type === 'bot') handleBotMsg(msg.data);
     };
-  } catch(e) { setWsStatus('poll', 'Polling'); }
+  } catch(e) { setConn('poll','Polling'); }
+}
+function setConn(cls, lbl) { document.getElementById('dot').className=cls; document.getElementById('connlbl').textContent=lbl; }
+
+// ── BOT MESSAGES ──────────────────────────────────────────────────────────────
+function handleBotMsg({ sessionId, type, data }) {
+  if (!bots[sessionId]) bots[sessionId] = { output:[], done:false, label: sessionId };
+  const sess = bots[sessionId];
+  if (type === 'start') {
+    sess.label = data.prompt ? data.prompt.slice(0,40) + '...' : sessionId;
+    sess.done = false;
+    openTerm();
+    activeBot = sessionId;
+    renderTermTabs();
+    appendTermLine(`[START] ${sess.label}`, 'sys');
+    appendTermLine(`[DIR] ${data.wd||''}`, 'sys');
+  }
+  if (type === 'output') {
+    sess.output.push(data);
+    if (activeBot === sessionId) appendTermLine(data);
+  }
+  if (type === 'resume') { sess.output = []; appendTermLine(data); }
+  if (type === 'done') {
+    sess.done = true;
+    appendTermLine(`[DONE] exit code ${data.code}, elapsed ${(data.elapsed/1000).toFixed(1)}s`, 'sys');
+    renderTermTabs();
+    fetchState(); // Refresh state after bot completes
+  }
 }
 
-function setWsStatus(cls, label) {
-  document.getElementById('ws-dot').className = cls;
-  document.getElementById('ws-label').textContent = label;
+function openTerm() { document.getElementById('term-drawer').classList.add('vis'); document.getElementById('term-empty').style.display='none'; }
+function closeTerm() { document.getElementById('term-drawer').classList.remove('vis'); }
+function clearTerm() { document.getElementById('term-body').innerHTML = '<div id="term-empty" style="display:none"></div>'; }
+async function stopActive() {
+  if (!activeBot) return;
+  try { await api('/api/bot/stop', { sessionId: activeBot }); toast('Bot stopped'); } catch(e) {}
+}
+
+function appendTermLine(text, cls) {
+  const body = document.getElementById('term-body');
+  text.split('\n').forEach(line => {
+    if (!line.trim()) return;
+    const d = document.createElement('div');
+    d.className = 'term-line' + (cls ? ' '+cls : '');
+    d.textContent = line;
+    body.appendChild(d);
+  });
+  body.scrollTop = body.scrollHeight;
+}
+
+function renderTermTabs() {
+  const tabs = document.getElementById('term-tabs');
+  tabs.innerHTML = '';
+  Object.entries(bots).slice(-6).forEach(([id, s]) => {
+    const t = document.createElement('div');
+    t.className = 'term-tab ' + (s.done ? 'done' : 'running') + (activeBot === id ? ' active' : '');
+    t.textContent = s.label.slice(0, 25);
+    t.onclick = () => {
+      activeBot = id;
+      clearTerm();
+      s.output.forEach(l => appendTermLine(l));
+      renderTermTabs();
+    };
+    tabs.appendChild(t);
+  });
+}
+
+// Terminal resize
+function initTermResize() {
+  const handle = document.getElementById('term-resize');
+  let startY, startH;
+  handle.addEventListener('mousedown', e => {
+    startY = e.clientY;
+    startH = document.getElementById('term-drawer').offsetHeight;
+    const mm = e2 => { const h = Math.max(100, Math.min(600, startH + (startY - e2.clientY))); document.getElementById('term-drawer').style.maxHeight = h + 'px'; };
+    const mu = () => { document.removeEventListener('mousemove', mm); document.removeEventListener('mouseup', mu); };
+    document.addEventListener('mousemove', mm);
+    document.addEventListener('mouseup', mu);
+  });
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
-function render() {
-  renderStats();
-  renderSidebar();
-  renderMissions();
-  updateBulkBar();
-}
+function render() { renderStats(); renderSidebar(); renderMissions(); updateBbar(); }
 
 function getMissions() {
   const order = state.missionExplanations ? Object.keys(state.missionExplanations) : [];
   const map = {};
   order.forEach(m => { map[m] = []; });
-  (state.todos || []).forEach(t => {
-    const m = extractMission(t.text) || 'General';
+  (state.todos||[]).forEach(t => {
+    const m = getMission(t.text);
     if (!map[m]) map[m] = [];
     map[m].push(t);
   });
-  Object.keys(map).forEach(k => { if (!map[k].length) delete map[k]; });
+  // Keep named missions from missionExplanations even if they have zero todos
+  const expKeys = state.missionExplanations ? Object.keys(state.missionExplanations) : [];
+  expKeys.forEach(k => { if (!map[k]) map[k] = []; });
+  // Only remove 'General' if empty
+  if (map['General'] && !map['General'].length) delete map['General'];
   return map;
 }
 
-function extractMission(text) {
+function getMission(text) {
   const m = text && text.match(/[-\u2013]\s*Mission:\s*(.+?)$/i);
   if (m) return m[1].trim();
   const m2 = text && text.match(/Mission:\s*(.+)/i);
-  return m2 ? m2[1].trim() : null;
+  return m2 ? m2[1].trim() : 'General';
 }
 
 function filterTodos(todos) {
   return todos.filter(t => {
-    if (statusFilter !== 'all' && t.status !== statusFilter) return false;
-    if (searchQ) {
-      const q = searchQ.toLowerCase();
-      if (!(t.text || '').toLowerCase().includes(q)) return false;
-    }
+    if (sfVal !== 'all' && t.status !== sfVal) return false;
+    if (searchQ && !(t.text||'').toLowerCase().includes(searchQ.toLowerCase())) return false;
     return true;
   });
 }
 
 function renderStats() {
-  const todos = state.todos || [];
-  const total = todos.length;
-  const done = todos.filter(t => t.status === 'done').length;
-  const ip = todos.filter(t => t.status === 'in_progress').length;
-  const pend = todos.filter(t => t.status === 'pending').length;
-  const pct = total ? Math.round(done / total * 100) : 0;
-  document.getElementById('s-total').textContent = total;
-  document.getElementById('s-done').textContent = done;
-  document.getElementById('s-inprog').textContent = ip;
-  document.getElementById('s-pending').textContent = pend;
-  document.getElementById('bar-fill').style.width = pct + '%';
-  document.getElementById('bar-fill').style.background = pct >= 80 ? '#22c55e' : pct >= 40 ? '#eab308' : '#7c3aed';
-  document.getElementById('bar-pct').textContent = pct + '%';
+  const todos = state.todos||[];
+  const total = todos.length, done = todos.filter(t=>t.status==='done').length;
+  const ip = todos.filter(t=>t.status==='in_progress').length, pend = todos.filter(t=>t.status==='pending').length;
+  const pct = total ? Math.round(done/total*100) : 0;
+  document.getElementById('s-t').textContent = total;
+  document.getElementById('s-d').textContent = done;
+  document.getElementById('s-a').textContent = ip;
+  document.getElementById('s-p').textContent = pend;
+  document.getElementById('bar-fill').style.width = pct+'%';
+  document.getElementById('bar-fill').style.background = pct>=80?'#22c55e':pct>=40?'#eab308':'#7c3aed';
+  document.getElementById('bar-pct').textContent = pct+'%';
 }
 
 function renderSidebar() {
   const missions = getMissions();
-  const sel = document.getElementById('sb-missions');
-  sel.innerHTML = '';
+  const el = document.getElementById('sb-list');
+  el.innerHTML = '';
   Object.entries(missions).forEach(([name, todos]) => {
-    const done = todos.filter(t => t.status === 'done').length;
-    const pct = todos.length ? Math.round(done / todos.length * 100) : 0;
-    const color = pct >= 80 ? '#22c55e' : pct >= 40 ? '#eab308' : '#ef4444';
+    const done = todos.filter(t=>t.status==='done').length;
+    const pct = todos.length ? Math.round(done/todos.length*100) : 0;
+    const color = pct>=80?'#22c55e':pct>=40?'#eab308':'#ef4444';
     const div = document.createElement('div');
-    div.className = 'sb-mission' + (missionFilter === name ? ' active' : '');
-    div.innerHTML = `<div class="sb-mission-name" title="${esc(name)}">${esc(name)}</div>
-      <div class="sb-bar-wrap"><div class="sb-bar-fill" style="width:${pct}%;background:${color}"></div></div>
-      <div class="sb-count">${done}/${todos.length} &mdash; ${pct}%</div>`;
-    div.onclick = () => { missionFilter = missionFilter === name ? 'all' : name; render(); };
-    sel.appendChild(div);
+    div.className = 'sb-m' + (mFilter===name?' active':'');
+    div.innerHTML = `<div class="sb-mname" title="${xe(name)}">${xe(name)}</div>
+      <div class="sb-bw"><div class="sb-bf" style="width:${pct}%;background:${color}"></div></div>
+      <div class="sb-cnt"><span>${done}/${todos.length}</span><span class="sb-cnt-pct" style="color:${color}">${pct}%</span></div>`;
+    div.onclick = () => { mFilter = mFilter===name?'all':name; render(); };
+    el.appendChild(div);
   });
 }
 
 function renderMissions() {
   const missions = getMissions();
-  const container = document.getElementById('missions-container');
-  container.innerHTML = '';
-  const toShow = missionFilter === 'all' ? Object.entries(missions) : (missions[missionFilter] ? [[missionFilter, missions[missionFilter]]] : []);
-  if (!toShow.length) { container.innerHTML = '<div class="empty">No todos match current filters.</div>'; return; }
+  const wrap = document.getElementById('mc-wrap');
+  wrap.innerHTML = '';
+  const toShow = mFilter==='all' ? Object.entries(missions) : (missions[mFilter] ? [[mFilter, missions[mFilter]]] : []);
+  if (!toShow.length) { wrap.innerHTML = '<div class="empty">No todos match filters.</div>'; return; }
   toShow.forEach(([name, todos]) => {
-    const filtered = filterTodos(todos);
-    const done = todos.filter(t => t.status === 'done').length;
-    const pct = todos.length ? Math.round(done / todos.length * 100) : 0;
-    const color = pct >= 80 ? '#22c55e' : pct >= 40 ? '#eab308' : '#ef4444';
-    const collapsed = collapsedMissions.has(name);
-    const card = document.createElement('div');
-    card.className = 'mission-card';
-    card.dataset.mission = name;
-    card.setAttribute('draggable', 'true');
-    card.innerHTML = `
-      <div class="mission-head" data-mission="${esc(name)}">
-        <span class="m-drag-handle" title="Drag to reorder mission">&#8597;</span>
-        <span class="m-collapse">${collapsed ? '&#9654;' : '&#9660;'}</span>
-        <div class="m-name" contenteditable="true" data-mission="${esc(name)}" onblur="saveMissionName(this)" onclick="event.stopPropagation()">${esc(name)}</div>
-        <div class="m-pbar-wrap"><div class="m-pbar-fill" style="width:${pct}%;background:${color}"></div></div>
-        <span class="m-pct">${pct}%</span>
-        <span class="m-count">${done}/${todos.length}</span>
-        <div class="m-actions" onclick="event.stopPropagation()">
-          <button class="m-btn" title="Mark all done" onclick="missionBulk('${esc(name)}','done')">&#10003;All</button>
-          <button class="m-btn" title="Mark all pending" onclick="missionBulk('${esc(name)}','pending')">&#9633;All</button>
-          <button class="m-btn" title="Add todo to this mission" onclick="openAddTodoModal('${esc(name)}')">+</button>
-          <button class="m-btn del" title="Delete mission" onclick="deleteMission('${esc(name)}')">&#10005;</button>
-        </div>
+    const filt = filterTodos(todos);
+    const done = todos.filter(t=>t.status==='done').length;
+    const pct = todos.length ? Math.round(done/todos.length*100) : 0;
+    const col = pct>=80?'#22c55e':pct>=40?'#eab308':'#ef4444';
+    const isCol = collapsed.has(name);
+    const mc = document.createElement('div');
+    mc.className = 'mc'; mc.dataset.mission = name;
+    mc.setAttribute('draggable','true');
+    mc.innerHTML = `<div class="mhead">
+      <span class="mdrag" title="Drag to reorder">&#8597;</span>
+      <span class="mico">${isCol?'&#9654;':'&#9660;'}</span>
+      <div class="mname-wrap">
+        <div class="mname" contenteditable="true" data-mission="${xe(name)}" onblur="saveMName(this)" onclick="event.stopPropagation()">${xe(name)}</div>
       </div>
-      <div class="mission-body${collapsed ? ' collapsed' : ''}" id="mb-${CSS.escape(name)}">
-        ${filtered.length === 0 && searchQ ? '<div class="empty">No matches.</div>' : filtered.map(t => todoHTML(t)).join('')}
-        <div class="mission-footer">
-          <input class="m-add-input" type="text" placeholder="Add todo to ${esc(name)}..." id="quick-add-${CSS.escape(name)}"
-            onkeydown="if(event.key==='Enter')quickAddTodo('${esc(name)}')">
-          <button class="m-add-btn" onclick="quickAddTodo('${esc(name)}')">Add</button>
-        </div>
-      </div>`;
-    card.querySelector('.mission-head').addEventListener('click', (e) => {
-      if (e.target.closest('.m-actions') || e.target.closest('.m-name')) return;
-      toggleMission(name);
+      <div class="mpbar"><div class="mpfill" style="width:${pct}%;background:${col}"></div></div>
+      <span class="mpct" style="color:${col}">${pct}%</span>
+      <span class="mcnt">${done}/${todos.length}</span>
+      <div class="marr" onclick="event.stopPropagation()">
+        <button data-maction="up" title="Move mission up">&#8593;</button>
+        <button data-maction="dn" title="Move mission down">&#8595;</button>
+      </div>
+      <div class="macts" onclick="event.stopPropagation()">
+        <button class="mb2 run" data-maction="run" title="Run all pending">&#9654; Run</button>
+        <button class="mb2" data-maction="done" title="Mark all done">&#10003; All</button>
+        <button class="mb2" data-maction="pending" title="Mark all pending">&#9633; All</button>
+        <button class="mb2" data-maction="add" title="Add todo">+ Add</button>
+        <button class="mb2 del" data-maction="del" title="Delete mission">&#10005; Del</button>
+      </div>
+    </div>
+    <div class="mbody${isCol?' col':''}" id="mb-${CSS.escape(name)}">
+      ${filt.length===0&&searchQ?'<div class="empty">No matches.</div>':filt.map(t=>todoHTML(t,name)).join('')}
+      <div class="mfoot">
+        <input class="madd-inp" type="text" placeholder="Quick add todo to ${xe(name)}..." id="qa-${CSS.escape(name)}">
+        <button class="madd-btn" data-maction="qaAdd">+</button>
+      </div>
+    </div>`;
+    // mission action buttons (safe: name captured from closure, no string serialization)
+    mc.querySelectorAll('[data-maction]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const act = btn.dataset.maction;
+        if (act === 'up') missionUp(name);
+        else if (act === 'dn') missionDn(name);
+        else if (act === 'run') runMission(name);
+        else if (act === 'done') mBulk(name, 'done');
+        else if (act === 'pending') mBulk(name, 'pending');
+        else if (act === 'add') openAddTodo(name);
+        else if (act === 'del') delMission(name);
+        else if (act === 'qaAdd') qaAdd(name);
+      });
     });
-    // Mission drag
-    card.addEventListener('dragstart', (e) => {
-      if (!e.target.classList.contains('m-drag-handle') && !e.target.closest('.m-drag-handle')) { e.preventDefault(); return; }
-      dragMissionName = name; card.style.opacity = '.4';
+    // qaAdd on Enter key for the quick-add input
+    const qaInp = mc.querySelector('.madd-inp');
+    if (qaInp) qaInp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); qaAdd(name); } });
+    // mission head click
+    mc.querySelector('.mhead').addEventListener('click', e => {
+      if (e.target.closest('.macts,.marr,.mname')) return;
+      toggleCol(name);
     });
-    card.addEventListener('dragend', () => { card.style.opacity = ''; dragMissionName = null; });
-    card.addEventListener('dragover', (e) => { e.preventDefault(); if (dragMissionName && dragMissionName !== name) card.classList.add('drag-over-mission'); });
-    card.addEventListener('dragleave', () => card.classList.remove('drag-over-mission'));
-    card.addEventListener('drop', (e) => {
-      e.preventDefault(); card.classList.remove('drag-over-mission');
-      if (!dragMissionName || dragMissionName === name) return;
-      const missions2 = getMissions();
-      const names = Object.keys(missions2);
-      const si = names.indexOf(dragMissionName), ti = names.indexOf(name);
-      if (si < 0 || ti < 0) return;
-      names.splice(si, 1); names.splice(ti, 0, dragMissionName);
-      api('/api/mission/reorder', { names }).then(fetchState);
+    // mission drag
+    mc.addEventListener('dragstart', e => {
+      if (!e.target.classList.contains('mdrag') && !e.target.closest('.mdrag')) { e.preventDefault(); return; }
+      dragMission = name; mc.style.opacity='.4'; e.stopPropagation();
     });
-    container.appendChild(card);
-    // Attach todo drag events
-    card.querySelectorAll('.todo-item').forEach(attachTodoDrag);
+    mc.addEventListener('dragend', () => { mc.style.opacity=''; dragMission=null; });
+    mc.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); if (dragMission&&dragMission!==name) mc.classList.add('dov'); });
+    mc.addEventListener('dragleave', () => mc.classList.remove('dov'));
+    mc.addEventListener('drop', e => {
+      e.preventDefault(); e.stopPropagation(); mc.classList.remove('dov');
+      if (!dragMission||dragMission===name) return;
+      const names = Object.keys(getMissions());
+      const si=names.indexOf(dragMission), ti=names.indexOf(name);
+      if (si<0||ti<0) return;
+      names.splice(si,1); names.splice(ti,0,dragMission);
+      api('/api/mission/reorder',{names}).then(fetchState);
+    });
+    wrap.appendChild(mc);
+    mc.querySelectorAll('.ti').forEach(attachDrag);
   });
 }
 
-function todoHTML(t) {
-  const sIcon = t.status === 'done' ? '<span class="todo-status status-done" title="Click to cycle status">[x]</span>'
-    : t.status === 'in_progress' ? '<span class="todo-status status-ip" title="Click to cycle status">[&gt;]</span>'
-    : '<span class="todo-status status-pending" title="Click to cycle status">[ ]</span>';
-  const tClass = 'todo-text' + (t.status === 'done' ? ' done' : '');
-  const shortText = (t.text || '').replace(/\s*[-\u2013]\s*Mission:\s*.+$/i, '').substring(0, 300);
-  const checked = selectedIds.has(t.id) ? 'checked' : '';
-  return `<div class="todo-item" draggable="true" data-id="${t.id}">
-    <input type="checkbox" class="todo-cb" data-id="${t.id}" ${checked} onchange="toggleSelect(${t.id},this.checked)">
-    <span data-cycle-id="${t.id}" onclick="cycleTodo(${t.id})">${sIcon}</span>
-    <div class="${tClass}" contenteditable="true" data-edit-id="${t.id}" onblur="saveText(this)" title="${esc(t.text || '')}">${esc(shortText)}</div>
-    <span class="todo-id">#${t.id}</span>
-    <div class="todo-acts">
-      <button class="t-btn" title="Mark done" onclick="markTodo(${t.id},'done')">&#10003;</button>
-      <button class="t-btn" title="In progress" onclick="markTodo(${t.id},'in_progress')">&#9654;</button>
-      <button class="t-btn" title="Pending" onclick="markTodo(${t.id},'pending')">&#9633;</button>
-      <button class="t-btn" title="Move to mission" onclick="openMoveTodoModal(${t.id})">&#10142;</button>
-      <button class="t-btn del" title="Delete" onclick="deleteTodo(${t.id})">&#10005;</button>
+function todoHTML(t, mission) {
+  const si = t.status==='done' ? '<span class="tstat sd" title="Click to cycle">✓</span>'
+    : t.status==='in_progress' ? '<span class="tstat si" title="Click to cycle">▶</span>'
+    : '<span class="tstat sp" title="Click to cycle">○</span>';
+  const tc = 'ttext'+(t.status==='done'?' done':'');
+  const short = (t.text||'').replace(/\s*[-\u2013]\s*Mission:\s*.+$/i,'').substring(0,300);
+  const chk = selIds.has(t.id)?'checked':'';
+  return `<div class="ti" draggable="true" data-id="${t.id}" data-mission="${xe(mission)}">
+    <input type="checkbox" ${chk} onchange="toggleSel(${t.id},this.checked)">
+    <span onclick="cycleTodo(${t.id})">${si}</span>
+    <div class="${tc}" contenteditable="true" data-eid="${t.id}" onblur="saveText(this)"
+      title="${xe(t.text||'')}">${xe(short)}</div>
+    <span class="tid">#${t.id}</span>
+    <div class="tarr">
+      <button onclick="todoUp(${t.id})" title="Move up">&#8593;</button>
+      <button onclick="todoDn(${t.id})" title="Move down">&#8595;</button>
+      <button onclick="todoTop(${t.id})" title="Move to top">&#8657;</button>
+    </div>
+    <div class="tacts">
+      <button class="tb" onclick="markTodo(${t.id},'done')" title="Done">&#10003;</button>
+      <button class="tb" onclick="markTodo(${t.id},'in_progress')" title="Active">&#9654;</button>
+      <button class="tb" onclick="markTodo(${t.id},'pending')" title="Pending">&#9633;</button>
+      <button class="tb" onclick="openMove(${t.id})" title="Move to mission">&#10142;</button>
+      <button class="tb run" onclick="runTodo(${t.id})" title="Run with bot">&#9654;&#9654;</button>
+      <button class="tb del" onclick="delTodo(${t.id})" title="Delete">&#10005;</button>
     </div>
   </div>`;
 }
 
 // ── TODO DRAG ─────────────────────────────────────────────────────────────────
-function attachTodoDrag(el) {
-  el.addEventListener('dragstart', e => {
-    dragSrcId = parseInt(el.dataset.id);
-    el.classList.add('dragging');
-    e.dataTransfer.effectAllowed = 'move';
-    e.stopPropagation();
-  });
-  el.addEventListener('dragend', () => { el.classList.remove('dragging'); document.querySelectorAll('.todo-item').forEach(i => i.classList.remove('drag-over')); dragSrcId = null; });
-  el.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); if (dragSrcId !== null) el.classList.add('drag-over'); });
-  el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+function attachDrag(el) {
+  el.addEventListener('dragstart', e => { dragTodoId=parseInt(el.dataset.id); el.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; e.stopPropagation(); });
+  el.addEventListener('dragend', () => { el.classList.remove('dragging'); document.querySelectorAll('.ti').forEach(i=>i.classList.remove('dov')); dragTodoId=null; });
+  el.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); if (dragTodoId!==null) el.classList.add('dov'); });
+  el.addEventListener('dragleave', () => el.classList.remove('dov'));
   el.addEventListener('drop', e => {
-    e.preventDefault(); e.stopPropagation();
-    el.classList.remove('drag-over');
-    const tId = parseInt(el.dataset.id);
-    if (!dragSrcId || dragSrcId === tId) return;
-    const todos = state.todos;
-    const si = todos.findIndex(t => t.id === dragSrcId);
-    const ti = todos.findIndex(t => t.id === tId);
-    if (si < 0 || ti < 0) return;
-    const [item] = todos.splice(si, 1);
-    todos.splice(ti, 0, item);
-    render();
-    api('/api/todo/reorder', { ids: todos.map(t => t.id) });
+    e.preventDefault(); e.stopPropagation(); el.classList.remove('dov');
+    const tid = parseInt(el.dataset.id);
+    if (!dragTodoId||dragTodoId===tid) return;
+    // Check cross-mission drop
+    const srcMission = getMission(state.todos.find(t=>t.id===dragTodoId)?.text||'');
+    const tgtMission = el.dataset.mission;
+    if (srcMission !== tgtMission && tgtMission) {
+      // Move to target mission then reorder
+      api('/api/todo/move', { id: dragTodoId, mission: tgtMission }).then(() => reorderDrop(dragTodoId, tid));
+    } else {
+      reorderDrop(dragTodoId, tid);
+    }
   });
+}
+
+function reorderDrop(srcId, tgtId) {
+  const si = state.todos.findIndex(t=>t.id===srcId), ti = state.todos.findIndex(t=>t.id===tgtId);
+  if (si<0||ti<0) return;
+  const [item] = state.todos.splice(si,1);
+  state.todos.splice(ti,0,item);
+  render();
+  api('/api/todo/reorder', { ids: state.todos.map(t=>t.id) });
 }
 
 // ── ACTIONS ───────────────────────────────────────────────────────────────────
-function toggleMission(name) {
-  if (collapsedMissions.has(name)) collapsedMissions.delete(name); else collapsedMissions.add(name);
-  renderMissions();
+function toggleCol(name) { if (collapsed.has(name)) collapsed.delete(name); else collapsed.add(name); renderMissions(); }
+function collapseAll() { Object.keys(getMissions()).forEach(m => collapsed.add(m)); renderMissions(); }
+function expandAll() { collapsed.clear(); renderMissions(); }
+
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sidebar-overlay');
+  if (window.innerWidth <= 768) {
+    const isOpen = sb.classList.contains('open');
+    if (isOpen) { sb.classList.remove('open'); ov.classList.remove('vis'); }
+    else { sb.classList.add('open'); sb.classList.remove('closed'); ov.classList.add('vis'); }
+  } else {
+    sb.classList.toggle('closed');
+  }
 }
-function collapseAll() { Object.keys(getMissions()).forEach(m => collapsedMissions.add(m)); renderMissions(); }
-function expandAll() { collapsedMissions.clear(); renderMissions(); }
-function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
+
+function closeSidebarMobile() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('vis');
+}
 
 function cycleTodo(id) {
-  const cycle = { pending: 'in_progress', in_progress: 'done', done: 'pending' };
-  const t = state.todos.find(x => x.id === id);
-  if (!t) return;
-  const newStatus = cycle[t.status] || 'pending';
-  pushUndo({ action: 'mark', id, prev: t.status });
-  t.status = newStatus;
+  const t = state.todos.find(x=>x.id===id); if (!t) return;
+  const cycle = { pending:'in_progress', in_progress:'done', done:'pending' };
+  pushUndo({ action:'mark', id, prev:t.status });
+  t.status = cycle[t.status]||'pending';
   render();
-  api('/api/todo/mark', { id, status: newStatus });
+  api('/api/todo/mark', { id, status: t.status });
 }
 
 function markTodo(id, status) {
-  const t = state.todos.find(x => x.id === id);
-  if (!t) return;
-  pushUndo({ action: 'mark', id, prev: t.status });
-  t.status = status;
-  render();
+  const t = state.todos.find(x=>x.id===id); if (!t) return;
+  pushUndo({ action:'mark', id, prev:t.status });
+  t.status = status; render();
   api('/api/todo/mark', { id, status });
 }
 
+function todoUp(id) { api('/api/todo/move-up',{id}).then(fetchState); }
+function todoDn(id) { api('/api/todo/move-down',{id}).then(fetchState); }
+function todoTop(id) { api('/api/todo/move-to-top',{id}).then(fetchState); }
+function missionUp(name) { api('/api/mission/move-up',{name}).then(fetchState); }
+function missionDn(name) { api('/api/mission/move-down',{name}).then(fetchState); }
+
 function saveText(el) {
-  const id = parseInt(el.dataset.editId);
-  const mission = extractMission(state.todos.find(t => t.id === id)?.text || '');
-  const newText = el.textContent.trim() + (mission ? ` - Mission: ${mission}` : '');
+  const id = parseInt(el.dataset.eid);
+  const t = state.todos.find(x=>x.id===id); if (!t) return;
+  const mission = getMission(t.text);
+  const newText = el.textContent.trim() + ` - Mission: ${mission}`;
   api('/api/todo/update-text', { id, text: newText });
 }
 
-function deleteTodo(id) {
-  const t = state.todos.find(x => x.id === id);
-  if (!t) return;
-  pushUndo({ action: 'restore', todo: JSON.parse(JSON.stringify(t)) });
-  state.todos = state.todos.filter(x => x.id !== id);
-  render();
-  api('/api/todo/delete', { id });
-  toast(`Deleted #${id} — Ctrl+Z to undo`);
-}
-
-function saveMissionName(el) {
+function saveMName(el) {
   const oldName = el.dataset.mission;
   const newName = el.textContent.trim();
-  if (!newName || newName === oldName) return;
+  if (!newName||newName===oldName) return;
   api('/api/mission/rename', { oldName, newName }).then(fetchState);
-  toast(`Renamed "${oldName}" → "${newName}"`);
+  toast(`Renamed "${oldName}" -> "${newName}"`);
 }
 
-function deleteMission(name) {
-  const withTodos = state.todos.filter(t => extractMission(t.text) === name).length;
-  const msg = withTodos > 0
-    ? `Delete mission "${name}"?\n\n${withTodos} todos will be reassigned to General.\nClick OK to delete todos, Cancel to keep them.`
-    : `Delete mission "${name}"?`;
-  const deleteTodos = confirm(msg);
+function delTodo(id) {
+  const t = state.todos.find(x=>x.id===id); if (!t) return;
+  pushUndo({ action:'restore', todo: JSON.parse(JSON.stringify(t)) });
+  state.todos = state.todos.filter(x=>x.id!==id);
+  render();
+  api('/api/todo/delete', { id });
+  toast(`#${id} deleted — Ctrl+Z undo`);
+}
+
+function delMission(name) {
+  const cnt = (getMissions()[name]||[]).length;
+  let deleteTodos = false;
+  if (cnt > 0) {
+    const choice = confirm(`Delete "${name}" and its ${cnt} todos?\nOK = delete todos too, Cancel = keep todos (just remove mission)`);
+    if (choice === null) return; // dismissed (some browsers)
+    deleteTodos = choice === true;
+  } else {
+    const ok = confirm(`Delete empty mission "${name}"?`);
+    if (!ok) return;
+  }
   api('/api/mission/delete', { name, deleteTodos }).then(fetchState);
-  toast(`Deleted mission "${name}"`);
+  toast(`Mission "${name}" deleted`);
 }
 
-function missionBulk(missionName, status) {
-  const ids = (getMissions()[missionName] || []).map(t => t.id);
-  ids.forEach(id => { const t = state.todos.find(x => x.id === id); if (t) t.status = status; });
+function mBulk(mission, status) {
+  const ids = (getMissions()[mission]||[]).map(t=>t.id);
+  ids.forEach(id => { const t=state.todos.find(x=>x.id===id); if(t) t.status=status; });
   render();
   api('/api/todo/bulk', { ids, action: status });
 }
 
-async function quickAddTodo(mission) {
-  const inp = document.getElementById(`quick-add-${CSS.escape(mission)}`);
-  const text = inp?.value.trim();
-  if (!text) return;
+async function qaAdd(mission) {
+  const inp = document.getElementById(`qa-${CSS.escape(mission)}`);
+  const text = inp?.value.trim(); if (!text) return;
   await api('/api/todo/add', { text, mission });
   if (inp) inp.value = '';
-  fetchState();
-  toast('Todo added');
+  fetchState(); toast('Added');
 }
 
-function clearDoneTodos() {
-  const ids = state.todos.filter(t => t.status === 'done').map(t => t.id);
-  if (!ids.length) { toast('No done todos to clear'); return; }
-  if (!confirm(`Remove ${ids.length} completed todos?`)) return;
-  state.todos = state.todos.filter(t => t.status !== 'done');
+function clearDone() {
+  const ids = state.todos.filter(t=>t.status==='done').map(t=>t.id);
+  if (!ids.length) { toast('No done todos'); return; }
+  if (!confirm(`Remove ${ids.length} done todos?`)) return;
+  state.todos = state.todos.filter(t=>t.status!=='done');
   render();
-  api('/api/todo/bulk', { ids, action: 'delete' });
+  api('/api/todo/bulk', { ids, action:'delete' });
   toast(`Cleared ${ids.length} done todos`);
 }
 
+// ── BOT RUN ───────────────────────────────────────────────────────────────────
+async function runTodo(id) {
+  const t = state.todos.find(x=>x.id===id);
+  if (!t) return;
+  openTerm();
+  try {
+    const r = await api('/api/bot/run', { todoId: id });
+    if (r.ok) { activeBot = r.sessionId; bots[r.sessionId] = { output:[], done:false, label:`#${id} ${t.text.slice(0,30)}` }; renderTermTabs(); toast(`Bot started for #${id}`); }
+    else toast('Bot failed: ' + (r.error||'unknown'));
+  } catch(e) { toast('Backend offline — cannot run bot'); }
+}
+
+async function runMission(mission) {
+  openTerm();
+  try {
+    const r = await api('/api/bot/run', { mission });
+    if (r.ok) { activeBot = r.sessionId; bots[r.sessionId] = { output:[], done:false, label:`Mission: ${mission}` }; renderTermTabs(); toast(`Bot started for mission "${mission}"`); }
+    else toast('Bot failed: ' + (r.error||'unknown'));
+  } catch(e) { toast('Backend offline'); }
+}
+
 // ── BULK SELECT ───────────────────────────────────────────────────────────────
-function toggleSelect(id, checked) {
-  if (checked) selectedIds.add(id); else selectedIds.delete(id);
-  updateBulkBar();
+function toggleSel(id, checked) { if (checked) selIds.add(id); else selIds.delete(id); updateBbar(); }
+function clearSel() { selIds.clear(); render(); }
+function updateBbar() {
+  const bar = document.getElementById('bbar'), cnt = selIds.size;
+  if (cnt>0) { bar.classList.add('vis'); document.getElementById('bcnt').textContent=cnt+' selected'; }
+  else bar.classList.remove('vis');
 }
-function clearSelection() { selectedIds.clear(); render(); }
-function updateBulkBar() {
-  const bar = document.getElementById('bulk-bar');
-  const cnt = selectedIds.size;
-  if (cnt > 0) { bar.classList.add('visible'); document.getElementById('bulk-count').textContent = cnt + ' selected'; }
-  else bar.classList.remove('visible');
-}
-function bulkAction(action) {
-  const ids = [...selectedIds];
-  if (!ids.length) return;
-  if (action === 'delete' && !confirm(`Delete ${ids.length} todos?`)) return;
-  if (action === 'delete') state.todos = state.todos.filter(t => !selectedIds.has(t.id));
-  else state.todos.forEach(t => { if (selectedIds.has(t.id)) t.status = action; });
-  selectedIds.clear();
-  render();
+async function bulk(action) {
+  const ids = [...selIds]; if (!ids.length) return;
+  if (action==='delete' && !confirm(`Delete ${ids.length} todos?`)) return;
+  if (action==='run') {
+    for (const id of ids.slice(0,5)) await runTodo(id); // run up to 5
+    selIds.clear(); render(); return;
+  }
+  if (action==='delete') state.todos = state.todos.filter(t=>!selIds.has(t.id));
+  else if (['done','pending','in_progress'].includes(action)) state.todos.forEach(t=>{ if(selIds.has(t.id)) t.status=action; });
+  selIds.clear(); render();
   api('/api/todo/bulk', { ids, action });
-  toast(`Bulk: ${action} applied to ${ids.length} todos`);
+  toast(`Bulk ${action} applied to ${ids.length} todos`);
 }
 
 // ── MODALS ────────────────────────────────────────────────────────────────────
-function openAddTodoModal(defaultMission) {
+function openAddTodo(defMission) {
   const missions = Object.keys(getMissions());
-  const opts = missions.map(m => `<option value="${esc(m)}" ${m === defaultMission ? 'selected' : ''}>${esc(m)}</option>`).join('');
-  showModal('Add Todo', `
-    <label>Todo Text</label>
-    <textarea id="m-text" rows="3" style="resize:vertical" placeholder="Describe the todo..."></textarea>
-    <label>Mission</label>
-    <select id="m-mission">${opts}<option value="General">General</option></select>
+  const opts = missions.map(m=>`<option value="${xe(m)}" ${m===defMission?'selected':''}>${xe(m)}</option>`).join('');
+  modal('Add Todo', `
+    <label>Text</label><textarea id="m-txt" rows="3" style="resize:vertical"></textarea>
+    <label>Mission</label><select id="m-msn">${opts}<option value="General">General</option></select>
     <label>Status</label>
-    <select id="m-status">
-      <option value="pending">Pending</option>
-      <option value="in_progress">In Progress</option>
-      <option value="done">Done</option>
-    </select>
+    <select id="m-sts"><option value="pending">Pending</option><option value="in_progress">In Progress</option><option value="done">Done</option></select>
   `, async () => {
-    const text = document.getElementById('m-text').value.trim();
-    const mission = document.getElementById('m-mission').value;
-    const status = document.getElementById('m-status').value;
+    const text = document.getElementById('m-txt').value.trim();
+    const mission = document.getElementById('m-msn').value;
+    const status = document.getElementById('m-sts').value;
     if (!text) return toast('Text required');
     await api('/api/todo/add', { text, mission, status });
-    fetchState();
-    toast('Todo added');
+    fetchState(); toast('Todo added');
   });
-  setTimeout(() => document.getElementById('m-text')?.focus(), 100);
+  setTimeout(()=>document.getElementById('m-txt')?.focus(),80);
 }
 
-function openAddMissionModal() {
-  showModal('Add Mission', `
-    <label>Mission Name</label>
-    <input id="m-mname" type="text" placeholder="e.g. Deploy Backend">
-    <label>Goal (optional)</label>
-    <textarea id="m-mgoal" rows="3" style="resize:vertical" placeholder="Describe the mission goal..."></textarea>
+function openAddMission() {
+  modal('Add Mission', `
+    <label>Mission Name</label><input id="m-mn" type="text" placeholder="e.g. Deploy Backend">
+    <label>Goal (optional)</label><textarea id="m-mg" rows="2" style="resize:vertical" placeholder="Describe the goal..."></textarea>
   `, async () => {
-    const name = document.getElementById('m-mname').value.trim();
-    const goal = document.getElementById('m-mgoal').value.trim();
+    const name = document.getElementById('m-mn').value.trim();
+    const goal = document.getElementById('m-mg').value.trim();
     if (!name) return toast('Name required');
     await api('/api/mission/add', { name, goal });
-    fetchState();
-    toast(`Mission "${name}" added`);
+    fetchState(); toast(`Mission "${name}" added`);
   });
-  setTimeout(() => document.getElementById('m-mname')?.focus(), 100);
+  setTimeout(()=>document.getElementById('m-mn')?.focus(),80);
 }
 
-function openMoveTodoModal(id) {
+function openMove(id) {
   const missions = Object.keys(getMissions());
-  const opts = missions.map(m => `<option>${esc(m)}</option>`).join('');
-  showModal('Move Todo', `
-    <label>Move todo #${id} to mission:</label>
-    <select id="m-move-target">${opts}</select>
-  `, async () => {
-    const mission = document.getElementById('m-move-target').value;
+  const opts = missions.map(m=>`<option>${xe(m)}</option>`).join('');
+  modal('Move Todo', `<label>Move #${id} to:</label><select id="m-mv">${opts}</select>`, async () => {
+    const mission = document.getElementById('m-mv').value;
     await api('/api/todo/move', { id, mission });
-    fetchState();
-    toast(`Todo #${id} moved to "${mission}"`);
+    fetchState(); toast(`#${id} moved to "${mission}"`);
   });
 }
 
-function openBulkMoveModal() {
+function openBulkMove() {
   const missions = Object.keys(getMissions());
-  const opts = missions.map(m => `<option>${esc(m)}</option>`).join('');
-  showModal('Move Selected', `
-    <label>Move ${selectedIds.size} todos to:</label>
-    <select id="m-bmove-target">${opts}</select>
-  `, async () => {
-    const mission = document.getElementById('m-bmove-target').value;
-    const ids = [...selectedIds];
-    await api('/api/todo/bulk', { ids, action: 'move', mission });
-    selectedIds.clear();
-    fetchState();
-    toast(`Moved ${ids.length} todos to "${mission}"`);
+  const opts = missions.map(m=>`<option>${xe(m)}</option>`).join('');
+  modal('Move Selected', `<label>Move ${selIds.size} todos to:</label><select id="m-bm">${opts}</select>`, async () => {
+    const mission = document.getElementById('m-bm').value;
+    const ids = [...selIds];
+    await api('/api/todo/bulk', { ids, action:'move', mission });
+    selIds.clear(); fetchState(); toast(`Moved ${ids.length} todos`);
   });
 }
 
-function showModal(title, bodyHtml, onOk) {
-  const existing = document.getElementById('modal-overlay');
-  if (existing) existing.remove();
-  const overlay = document.createElement('div');
-  overlay.id = 'modal-overlay';
-  overlay.className = 'modal-overlay';
-  overlay.innerHTML = `<div class="modal">
-    <h2>${esc(title)}</h2>
-    ${bodyHtml}
-    <div class="modal-btns">
-      <button class="modal-btn cancel" onclick="document.getElementById('modal-overlay').remove()">Cancel</button>
-      <button class="modal-btn ok" id="modal-ok-btn">OK</button>
-    </div>
-  </div>`;
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
-  document.body.appendChild(overlay);
-  document.getElementById('modal-ok-btn').onclick = () => { onOk(); overlay.remove(); };
+function modal(title, body, onOk) {
+  document.getElementById('__modal')?.remove();
+  const ov = document.createElement('div');
+  ov.id='__modal'; ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal"><h2>${xe(title)}</h2>${body}<div class="mbtns">
+    <button class="mcancel" onclick="document.getElementById('__modal').remove()">Cancel</button>
+    <button class="mok" id="__mok">OK</button></div></div>`;
+  ov.addEventListener('click', e=>{ if(e.target===ov) ov.remove(); });
+  document.body.appendChild(ov);
+  document.getElementById('__mok').onclick = () => { onOk(); ov.remove(); };
 }
 
 // ── EXPORT ────────────────────────────────────────────────────────────────────
-function exportAll() {
-  dlBlob(JSON.stringify(state, null, 2), 'rlp-state.json', 'application/json');
-  toast('Downloaded rlp-state.json');
+function exportJSON() { dl(JSON.stringify(state,null,2),'rlp-state.json','application/json'); }
+function exportMD() {
+  const m = getMissions();
+  const name = mFilter!=='all'?mFilter:Object.keys(m)[0];
+  const md = `# ${name}\n\n`+(m[name]||[]).map(t=>`- [${t.status==='done'?'x':' '}] ${(t.text||'').replace(/\s*[-\u2013]\s*Mission:\s*.+$/i,'')}`).join('\n');
+  dl(md, name.replace(/\s+/g,'-')+'.md','text/markdown');
+  toast('Markdown downloaded');
 }
-function exportMissionMd() {
-  const missions = getMissions();
-  const name = missionFilter !== 'all' ? missionFilter : Object.keys(missions)[0];
-  const todos = missions[name] || [];
-  const md = `# ${name}\n\n` + todos.map(t => `- [${t.status === 'done' ? 'x' : ' '}] ${(t.text || '').replace(/\s*[-–]\s*Mission:\s*.+$/i, '')}`).join('\n');
-  dlBlob(md, name.replace(/\s+/g, '-') + '.md', 'text/markdown');
-  toast('Downloaded markdown');
-}
-function dlBlob(content, name, type) {
-  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([content], { type })), download: name });
-  a.click();
-}
+function dl(c,n,type) { const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([c],{type})),download:n}); a.click(); }
 
-// ── SEARCH / FILTER ───────────────────────────────────────────────────────────
-function onSearch(q) { searchQ = q; renderMissions(); }
-function onFilter() { statusFilter = document.getElementById('status-filter').value; renderMissions(); }
+// ── SEARCH/FILTER ─────────────────────────────────────────────────────────────
+function onSearch(q) { searchQ=q; renderMissions(); }
+function onFilter() { sfVal=document.getElementById('sf').value; renderMissions(); }
 
 // ── OPENCLAW ──────────────────────────────────────────────────────────────────
 async function checkOC() {
   try {
     const d = await api('/api/openclaw/status');
-    const el = document.getElementById('oc-status');
-    if (d.status === 'offline' || d.error) {
-      el.className = 'oc-badge oc-offline'; el.innerHTML = '&#9679; Gateway offline';
-    } else {
-      el.className = 'oc-badge oc-online'; el.innerHTML = '&#9679; Connected';
-    }
+    const el = document.getElementById('oc-st');
+    if (d.status==='offline'||d.error) { el.style.color='var(--red)'; el.innerHTML='<span style="font-size:8px">●</span> Offline'; }
+    else { el.style.color='var(--green)'; el.innerHTML='<span style="font-size:8px">●</span> Connected'; }
   } catch(e) {}
 }
 
 // ── UNDO ─────────────────────────────────────────────────────────────────────
-function pushUndo(cmd) { undoStack.push(cmd); if (undoStack.length > 20) undoStack.shift(); }
+function pushUndo(cmd) { undoStack.push(cmd); if (undoStack.length>30) undoStack.shift(); }
 async function undo() {
-  const cmd = undoStack.pop();
-  if (!cmd) return;
-  if (cmd.action === 'mark') { await api('/api/todo/mark', { id: cmd.id, status: cmd.prev }); fetchState(); }
-  if (cmd.action === 'restore') { await api('/api/todo/add', { text: cmd.todo.text, status: cmd.todo.status }); fetchState(); }
+  const cmd = undoStack.pop(); if (!cmd) return;
+  if (cmd.action==='mark') { await api('/api/todo/mark',{id:cmd.id,status:cmd.prev}); fetchState(); }
+  if (cmd.action==='restore') { await api('/api/todo/add',{text:cmd.todo.text,status:cmd.todo.status}); fetchState(); }
   toast('Undone');
 }
 
 // ── KEYBOARD ─────────────────────────────────────────────────────────────────
-function handleKey(e) {
-  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
-  if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); }
-  if (e.key === '/' ) { e.preventDefault(); document.getElementById('search-box').focus(); }
-  if (e.key === 'Escape') { clearSelection(); document.getElementById('search-box').value = ''; searchQ = ''; renderMissions(); }
-  if (e.key === 'n' && e.ctrlKey) { e.preventDefault(); openAddTodoModal(); }
+function onKey(e) {
+  if (e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.isContentEditable) return;
+  if (e.ctrlKey&&e.key==='z') { e.preventDefault(); undo(); }
+  if (e.key==='/') { e.preventDefault(); document.getElementById('srch').focus(); }
+  if (e.key==='Escape') { clearSel(); document.getElementById('srch').value=''; searchQ=''; renderMissions(); }
+  if (e.ctrlKey&&e.key==='n') { e.preventDefault(); openAddTodo(); }
+  if (e.key==='t'&&e.ctrlKey) { e.preventDefault(); document.getElementById('term-drawer').classList.toggle('vis'); }
 }
 
 // ── UTILS ─────────────────────────────────────────────────────────────────────
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-function toast(msg, dur = 2800) {
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), dur);
+function xe(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function toast(msg, dur=2800) {
+  const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), dur);
 }
 </script>
 </body>
