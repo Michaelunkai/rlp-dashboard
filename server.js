@@ -101,16 +101,32 @@ function startTunnel() {
 
 function saveTunnelConfig() {
   const cfg = { tunnelUrl, updatedAt: new Date().toISOString() };
-  const cfgPath = path.join(REPO_DIR, 'tunnel-config.json');
-  fs.writeFileSync(cfgPath, JSON.stringify(cfg, null, 2), 'utf8');
-  // Also expose in public/
+  // Write locally
+  fs.writeFileSync(path.join(REPO_DIR, 'tunnel-config.json'), JSON.stringify(cfg, null, 2), 'utf8');
   fs.writeFileSync(path.join(REPO_DIR, 'public', 'tunnel-config.json'), JSON.stringify(cfg, null, 2), 'utf8');
-  // Push to GitHub immediately
-  const cmd = `cd /d "${REPO_DIR}" && git add tunnel-config.json public/tunnel-config.json && git commit -m "update tunnel URL: ${tunnelUrl}" && git push origin main`;
-  exec(`cmd /c ${cmd}`, (err) => {
-    if (!err) console.log('[tunnel] config pushed to GitHub');
-  });
   broadcast('config', cfg);
+
+  // 1. Deploy new tunnel-config.json to Netlify immediately (no git needed)
+  netlifyDeploy();
+
+  // 2. Also push to GitHub as fallback
+  const gitCmd = `cd /d "${REPO_DIR}" && git add tunnel-config.json public/tunnel-config.json && git commit -m "tunnel: ${tunnelUrl}" && git push origin main`;
+  exec(`cmd /c ${gitCmd}`, (err) => {
+    if (!err) console.log('[git] tunnel config pushed');
+    else console.log('[git] push skipped (no change or error)');
+  });
+}
+
+function netlifyDeploy() {
+  const netlifyToken = 'nfp_6x3F4LsDiyoUpdaG2XZTpXexGQLpCTs505ef';
+  // Deploy the entire public/ folder to Netlify production
+  const deployCmd = `npx netlify-cli deploy --prod --dir="${path.join(REPO_DIR,'public')}" --auth=${netlifyToken}`;
+  console.log('[netlify] deploying updated tunnel-config.json...');
+  exec(deployCmd, { cwd: REPO_DIR }, (err, stdout, stderr) => {
+    if (err) { console.log('[netlify] deploy error:', stderr.slice(0,120)); return; }
+    const urlMatch = stdout.match(/Production URL:\s*(https:\/\/[^\s]+)/);
+    console.log('[netlify] deployed:', urlMatch ? urlMatch[1] : 'done');
+  });
 }
 
 // ─── API Routes ───────────────────────────────────────────────────────────────

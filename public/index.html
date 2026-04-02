@@ -246,18 +246,34 @@ const IS_LOCAL = location.hostname === 'localhost' || location.hostname === '127
 async function resolveBackend() {
   // 1. localStorage override
   const stored = localStorage.getItem('rlp_backend');
-  if (stored) return stored;
-  // 2. Try to load tunnel-config.json from same origin (served by express or Netlify CDN)
+  if (stored) { console.log('[backend] using stored:', stored); return stored; }
+  // 2. Try tunnel-config.json on this Netlify origin (redeployed automatically on server restart)
   try {
     const r = await fetch('/tunnel-config.json?_=' + Date.now());
-    if (r.ok) { const d = await r.json(); if (d.tunnelUrl) return d.tunnelUrl; }
+    if (r.ok) { const d = await r.json(); if (d.tunnelUrl) { console.log('[backend] from netlify static:', d.tunnelUrl); return d.tunnelUrl; } }
   } catch(e) {}
-  // 3. Try GitHub raw
+  // 3. Try GitHub raw (updated within ~15s of server restart)
   try {
-    const r = await fetch('https://raw.githubusercontent.com/Michaelunkai/rlp-dashboard/main/tunnel-config.json?_=' + Date.now());
-    if (r.ok) { const d = await r.json(); if (d.tunnelUrl) return d.tunnelUrl; }
+    const r = await fetch('https://raw.githubusercontent.com/Michaelunkai/rlp-dashboard/main/public/tunnel-config.json?_=' + Date.now());
+    if (r.ok) { const d = await r.json(); if (d.tunnelUrl) { console.log('[backend] from github:', d.tunnelUrl); return d.tunnelUrl; } }
   } catch(e) {}
+  console.warn('[backend] no backend URL found');
   return null;
+}
+
+// Keep retrying backend resolution until connected
+async function autoReconnect() {
+  if (wsAlive || IS_LOCAL) return;
+  setWsStatus('poll', 'Reconnecting...');
+  const url = await resolveBackend();
+  if (url && url !== BACKEND) {
+    console.log('[autoReconnect] new backend URL:', url);
+    BACKEND = url;
+    BACKEND_WS = url.replace('https://', 'wss://').replace('http://', 'ws://');
+    localStorage.removeItem('rlp_backend'); // let it rediscover next time
+    connect();
+    fetchState();
+  }
 }
 
 let BACKEND = IS_LOCAL ? '' : null;
@@ -286,6 +302,7 @@ let undoStack = [];
   fetchState();
   checkOC();
   setInterval(() => { if (!wsAlive) fetchState(); }, 5000);
+  setInterval(() => { if (!wsAlive) autoReconnect(); }, 12000);
   setInterval(checkOC, 20000);
   // Keyboard shortcuts
   document.addEventListener('keydown', handleKey);
