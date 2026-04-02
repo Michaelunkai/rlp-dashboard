@@ -5,405 +5,804 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RLP Dashboard</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #1a1a2e; color: #e0e0e0; font-family: 'Courier New', monospace; font-size: 13px; }
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d1a;--bg2:#111127;--bg3:#16213e;--bg4:#1a1a3e;
+  --border:#2a2a4a;--text:#e0e0e0;--muted:#888;--accent:#7c3aed;
+  --accent2:#6d28d9;--green:#22c55e;--yellow:#eab308;--red:#ef4444;
+  --blue:#3b82f6;--cyan:#06b6d4;
+}
+body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;font-size:13px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
 
-  /* Stats Bar */
-  #stats-bar {
-    background: #0d0d1a;
-    border-bottom: 1px solid #333;
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
-    position: sticky; top: 0; z-index: 100;
-  }
-  #stats-bar h1 { color: #7c3aed; font-size: 16px; margin-right: 10px; }
-  .stat { color: #aaa; }
-  .stat span { color: #fff; font-weight: bold; }
-  #overall-bar-wrap { flex: 1; min-width: 200px; background: #333; border-radius: 4px; height: 14px; overflow: hidden; }
-  #overall-bar { height: 100%; background: #7c3aed; transition: width 0.5s; border-radius: 4px; }
-  #overall-pct { color: #7c3aed; font-weight: bold; min-width: 40px; }
-  #ws-status { margin-left: auto; font-size: 11px; }
-  #ws-status.connected { color: #22c55e; }
-  #ws-status.disconnected { color: #ef4444; }
+/* ── TOP BAR ── */
+#topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;flex-shrink:0;min-height:48px}
+#topbar h1{color:var(--accent);font-size:15px;white-space:nowrap;margin-right:4px}
+.stat-pill{background:var(--bg3);border:1px solid var(--border);padding:3px 10px;border-radius:12px;font-size:11px;white-space:nowrap}
+.stat-pill span{color:#fff;font-weight:bold}
+#bar-wrap{flex:1;min-width:120px;max-width:200px;background:#333;border-radius:6px;height:10px;overflow:hidden}
+#bar-fill{height:100%;background:var(--accent);transition:width .6s;border-radius:6px}
+#bar-pct{color:var(--accent);font-weight:bold;font-size:12px;min-width:36px}
+#ws-dot{font-size:18px;transition:color .3s}
+#ws-dot.live{color:var(--green)}
+#ws-dot.poll{color:var(--yellow)}
+#ws-dot.dead{color:var(--red)}
+#ws-label{font-size:11px;min-width:70px}
+.topbar-spacer{flex:1}
+.icon-btn{background:none;border:1px solid var(--border);color:var(--text);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:5px;transition:background .2s}
+.icon-btn:hover{background:var(--bg4);border-color:var(--accent)}
+#github-btn{background:var(--bg3);border-color:#555;color:#fff;padding:5px 14px;font-size:13px;font-weight:bold;border-radius:8px}
+#github-btn:hover{background:#24292e;border-color:#aaa}
+#github-btn svg{vertical-align:middle}
 
-  /* Controls */
-  #controls {
-    padding: 10px 20px;
-    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
-    background: #111127; border-bottom: 1px solid #222;
-  }
-  select, input[type=text] {
-    background: #0d0d1a; color: #e0e0e0; border: 1px solid #444;
-    padding: 5px 10px; border-radius: 4px; font-family: inherit; font-size: 12px;
-  }
-  button {
-    background: #7c3aed; color: #fff; border: none; padding: 5px 12px;
-    border-radius: 4px; cursor: pointer; font-size: 12px; font-family: inherit;
-  }
-  button:hover { background: #6d28d9; }
-  button.secondary { background: #374151; }
-  button.secondary:hover { background: #4b5563; }
-  button.danger { background: #dc2626; }
-  button.danger:hover { background: #b91c1c; }
-  #add-text { width: 300px; }
+/* ── TOOLBAR ── */
+#toolbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:7px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex-shrink:0}
+#search-box{background:var(--bg);color:var(--text);border:1px solid var(--border);padding:5px 10px;border-radius:6px;font-family:inherit;font-size:12px;width:180px}
+#search-box:focus{outline:none;border-color:var(--accent)}
+select.tb-select{background:var(--bg);color:var(--text);border:1px solid var(--border);padding:5px 8px;border-radius:6px;font-family:inherit;font-size:12px;cursor:pointer}
+.tb-btn{background:var(--bg3);color:var(--text);border:1px solid var(--border);padding:5px 11px;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit;transition:background .2s;white-space:nowrap}
+.tb-btn:hover{background:var(--bg4);border-color:var(--accent)}
+.tb-btn.danger{border-color:#7f1d1d;color:var(--red)}
+.tb-btn.danger:hover{background:#3b1010}
+.tb-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.tb-btn.primary:hover{background:var(--accent2)}
+.tb-sep{width:1px;height:22px;background:var(--border);margin:0 4px}
 
-  /* Main layout */
-  #main { display: flex; gap: 0; }
-  #sidebar { width: 220px; min-width: 180px; background: #111127; border-right: 1px solid #222; padding: 10px; height: calc(100vh - 90px); overflow-y: auto; position: sticky; top: 90px; }
-  #content { flex: 1; padding: 15px; overflow-y: auto; }
+/* ── LAYOUT ── */
+#body{display:flex;flex:1;overflow:hidden}
+#sidebar{width:210px;min-width:180px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;transition:width .2s}
+#sidebar.collapsed{width:0;min-width:0;overflow:hidden}
+#sidebar-inner{flex:1;overflow-y:auto;padding:8px}
+#sidebar-inner::-webkit-scrollbar{width:4px}
+#sidebar-inner::-webkit-scrollbar-thumb{background:var(--border)}
+#content{flex:1;overflow-y:auto;padding:14px}
+#content::-webkit-scrollbar{width:6px}
+#content::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
-  /* Sidebar missions */
-  .sidebar-mission {
-    padding: 6px 8px; margin-bottom: 6px; border-radius: 4px;
-    cursor: pointer; border-left: 3px solid transparent;
-    transition: background 0.2s;
-  }
-  .sidebar-mission:hover { background: #1a1a3e; }
-  .sidebar-mission.active { background: #1a1a3e; border-left-color: #7c3aed; }
-  .sidebar-mission-name { font-size: 11px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .sidebar-mission-bar { height: 4px; background: #333; border-radius: 2px; margin-top: 4px; overflow: hidden; }
-  .sidebar-mission-fill { height: 100%; border-radius: 2px; }
-  .sidebar-mission-count { font-size: 10px; color: #666; margin-top: 2px; }
+/* ── SIDEBAR ── */
+.sb-section{font-size:10px;color:var(--muted);letter-spacing:.08em;margin:8px 0 4px;text-transform:uppercase}
+.sb-mission{padding:6px 8px;margin-bottom:4px;border-radius:6px;cursor:pointer;border-left:3px solid transparent;transition:background .15s}
+.sb-mission:hover{background:var(--bg4)}
+.sb-mission.active{background:var(--bg4);border-left-color:var(--accent)}
+.sb-mission-name{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-bar-wrap{height:4px;background:#333;border-radius:2px;margin-top:4px;overflow:hidden}
+.sb-bar-fill{height:100%;border-radius:2px;transition:width .4s}
+.sb-count{font-size:10px;color:var(--muted);margin-top:2px}
+.sb-add-mission{width:100%;background:none;border:1px dashed var(--border);color:var(--muted);padding:5px;border-radius:6px;cursor:pointer;font-size:11px;margin-top:8px;transition:all .2s}
+.sb-add-mission:hover{border-color:var(--accent);color:var(--accent)}
+#openclaw-section{padding:8px;border-top:1px solid var(--border);margin-top:auto;flex-shrink:0}
+.oc-badge{font-size:11px}
+.oc-online{color:var(--green)}
+.oc-offline{color:var(--red)}
 
-  /* Mission cards */
-  .mission-card { background: #16213e; border: 1px solid #2a2a4a; border-radius: 8px; margin-bottom: 15px; overflow: hidden; }
-  .mission-header {
-    padding: 10px 14px; cursor: pointer; display: flex; align-items: center; gap: 10px;
-    background: #1a1a3e;
-  }
-  .mission-header:hover { background: #1e1e48; }
-  .mission-name { font-weight: bold; font-size: 13px; flex: 1; }
-  .mission-progress-bar { width: 80px; height: 8px; background: #333; border-radius: 4px; overflow: hidden; }
-  .mission-progress-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
-  .mission-pct { font-size: 11px; color: #aaa; min-width: 35px; text-align: right; }
-  .mission-count-badge { font-size: 10px; color: #888; }
-  .mission-collapse-icon { color: #666; font-size: 10px; }
-  .mission-todos { padding: 8px; }
-  .mission-todos.collapsed { display: none; }
+/* ── MISSION CARDS ── */
+.mission-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;margin-bottom:12px;overflow:hidden;transition:border-color .2s}
+.mission-card.drag-over-mission{border-color:var(--accent);background:var(--bg4)}
+.mission-head{padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;background:var(--bg4);user-select:none}
+.mission-head:hover{background:#1e1e48}
+.m-drag-handle{color:#444;cursor:grab;font-size:14px;padding:0 2px}
+.m-drag-handle:active{cursor:grabbing}
+.m-collapse{font-size:10px;color:var(--muted);min-width:10px}
+.m-name{font-weight:bold;font-size:13px;flex:1;outline:none;background:none;border:none;color:var(--text);font-family:inherit}
+.m-name[contenteditable=true]:focus{border-bottom:1px solid var(--accent)}
+.m-pbar-wrap{width:70px;height:7px;background:#333;border-radius:4px;overflow:hidden;flex-shrink:0}
+.m-pbar-fill{height:100%;border-radius:4px;transition:width .5s}
+.m-pct{font-size:11px;color:var(--muted);min-width:32px;text-align:right}
+.m-count{font-size:10px;color:#666;min-width:30px;text-align:right}
+.m-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s}
+.mission-head:hover .m-actions{opacity:1}
+.m-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 5px;border-radius:4px;transition:all .15s}
+.m-btn:hover{color:var(--text);background:var(--bg3)}
+.m-btn.del:hover{color:var(--red)}
+.mission-body{padding:8px}
+.mission-body.collapsed{display:none}
+.mission-footer{padding:6px 8px 8px;display:flex;gap:6px}
+.m-add-input{flex:1;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:4px 8px;border-radius:5px;font-family:inherit;font-size:12px;outline:none}
+.m-add-input:focus{border-color:var(--accent)}
+.m-add-btn{background:var(--accent);color:#fff;border:none;padding:4px 10px;border-radius:5px;cursor:pointer;font-size:12px}
+.m-add-btn:hover{background:var(--accent2)}
 
-  /* Todo items */
-  .todo-item {
-    display: flex; align-items: flex-start; gap: 8px; padding: 5px 8px;
-    border-radius: 4px; margin-bottom: 3px; cursor: grab;
-    border: 1px solid transparent;
-    transition: background 0.15s;
-  }
-  .todo-item:hover { background: #1e2040; }
-  .todo-item.dragging { opacity: 0.4; background: #2a1a5e; }
-  .todo-item.drag-over { border-color: #7c3aed; background: #1a1040; }
-  .todo-status { font-size: 12px; min-width: 20px; margin-top: 1px; }
-  .status-done { color: #22c55e; }
-  .status-inprog { color: #3b82f6; }
-  .status-pending { color: #888; }
-  .todo-text {
-    flex: 1; line-height: 1.4; word-break: break-word; outline: none;
-    border-bottom: 1px solid transparent;
-  }
-  .todo-text[contenteditable=true]:focus { border-bottom-color: #7c3aed; }
-  .todo-text.done-text { color: #555; text-decoration: line-through; }
-  .todo-actions { display: flex; gap: 4px; opacity: 0; transition: opacity 0.15s; }
-  .todo-item:hover .todo-actions { opacity: 1; }
-  .btn-delete { background: none; border: none; color: #ef4444; cursor: pointer; padding: 0 4px; font-size: 14px; line-height: 1; }
-  .btn-delete:hover { color: #dc2626; background: none; }
+/* ── TODO ITEMS ── */
+.todo-item{display:flex;align-items:flex-start;gap:6px;padding:5px 6px;border-radius:6px;margin-bottom:2px;border:1px solid transparent;transition:background .12s;cursor:grab}
+.todo-item:hover{background:#1a1a38}
+.todo-item.dragging{opacity:.35;background:#2a1a5e}
+.todo-item.drag-over{border-color:var(--accent);background:#1a0040}
+.todo-cb{width:14px;height:14px;margin-top:2px;cursor:pointer;accent-color:var(--accent);flex-shrink:0}
+.todo-status{font-size:12px;min-width:22px;cursor:pointer;select:none;flex-shrink:0;margin-top:1px}
+.status-done{color:var(--green)}
+.status-ip{color:var(--blue)}
+.status-pending{color:var(--muted)}
+.todo-text{flex:1;line-height:1.45;word-break:break-word;outline:none;padding:1px 2px;border-radius:3px;border:1px solid transparent}
+.todo-text[contenteditable=true]:focus{border-color:var(--accent);background:#0d0d20}
+.todo-text.done{color:#444;text-decoration:line-through}
+.todo-id{font-size:10px;color:#444;min-width:24px;text-align:right;flex-shrink:0;margin-top:2px}
+.todo-acts{display:flex;gap:2px;opacity:0;transition:opacity .12s;flex-shrink:0}
+.todo-item:hover .todo-acts{opacity:1}
+.t-btn{background:none;border:none;color:var(--muted);cursor:pointer;padding:1px 4px;border-radius:3px;font-size:12px;line-height:1.4;transition:all .12s}
+.t-btn:hover{color:var(--text);background:var(--bg4)}
+.t-btn.del:hover{color:var(--red);background:#3b1010}
 
-  /* OpenClaw sidebar */
-  #openclaw-panel { padding: 10px; border-top: 1px solid #222; margin-top: 10px; }
-  #openclaw-status { font-size: 11px; }
-  .badge-online { color: #22c55e; }
-  .badge-offline { color: #ef4444; }
+/* ── BULK BAR ── */
+#bulk-bar{background:#1a0d3e;border-top:1px solid var(--accent);padding:7px 14px;display:none;align-items:center;gap:8px;flex-shrink:0}
+#bulk-bar.visible{display:flex}
+#bulk-count{color:var(--accent);font-weight:bold;font-size:12px}
 
-  /* Filter dropdown */
-  #filter-select { min-width: 160px; }
+/* ── ADD MISSION MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;display:flex;align-items:center;justify-content:center}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;min-width:340px;max-width:500px}
+.modal h2{color:var(--accent);margin-bottom:16px;font-size:15px}
+.modal label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;margin-top:12px}
+.modal input,.modal textarea,.modal select{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:7px 10px;border-radius:6px;font-family:inherit;font-size:12px;outline:none}
+.modal input:focus,.modal textarea:focus{border-color:var(--accent)}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.modal-btn{padding:7px 18px;border-radius:6px;border:none;cursor:pointer;font-size:13px;font-family:inherit}
+.modal-btn.cancel{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
+.modal-btn.ok{background:var(--accent);color:#fff}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:20px;right:20px;background:var(--bg4);border:1px solid var(--accent);color:var(--text);padding:10px 18px;border-radius:8px;font-size:12px;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
+#toast.show{opacity:1}
+
+/* ── EMPTY STATE ── */
+.empty{color:var(--muted);text-align:center;padding:30px;font-size:12px}
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  #sidebar{width:0;min-width:0}
+  #sidebar.mobile-open{width:210px;position:absolute;z-index:500;height:100%;top:0}
+  #bar-wrap{display:none}
+  #add-text{width:140px}
+}
 </style>
 </head>
 <body>
 
-<!-- Stats Bar -->
-<div id="stats-bar">
-  <h1>RLP Dashboard</h1>
-  <div class="stat">Total: <span id="s-total">0</span></div>
-  <div class="stat">Done: <span id="s-done">0</span></div>
-  <div class="stat">Active: <span id="s-inprog">0</span></div>
-  <div class="stat">Pending: <span id="s-pending">0</span></div>
-  <div id="overall-bar-wrap"><div id="overall-bar" style="width:0%"></div></div>
-  <div id="overall-pct">0%</div>
-  <div id="ws-status" class="disconnected">&#9679; Disconnected</div>
+<!-- TOP BAR -->
+<div id="topbar">
+  <button class="icon-btn" onclick="toggleSidebar()" title="Toggle sidebar">&#9776;</button>
+  <h1>&#9670; RLP Dashboard</h1>
+  <div class="stat-pill">Total <span id="s-total">0</span></div>
+  <div class="stat-pill" style="border-color:#22c55e44">Done <span id="s-done" style="color:var(--green)">0</span></div>
+  <div class="stat-pill" style="border-color:#3b82f644">Active <span id="s-inprog" style="color:var(--blue)">0</span></div>
+  <div class="stat-pill" style="border-color:#88888844">Pending <span id="s-pending">0</span></div>
+  <div id="bar-wrap"><div id="bar-fill" style="width:0%"></div></div>
+  <div id="bar-pct">0%</div>
+  <div style="display:flex;align-items:center;gap:5px;font-size:12px">
+    <span id="ws-dot" class="dead">&#9679;</span>
+    <span id="ws-label">Offline</span>
+  </div>
+  <div class="topbar-spacer"></div>
+  <button class="icon-btn" onclick="configBackend()" title="Set backend URL">&#9881; Backend</button>
+  <button class="icon-btn" onclick="triggerGitSync()" title="Push to GitHub now">&#8645; Sync</button>
+  <button id="github-btn" class="icon-btn" onclick="window.open('https://github.com/Michaelunkai/rlp-dashboard','_blank')" title="Open GitHub repo">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+    GitHub
+  </button>
 </div>
 
-<!-- Controls -->
-<div id="controls">
-  <select id="filter-select">
-    <option value="all">All Missions</option>
+<!-- TOOLBAR -->
+<div id="toolbar">
+  <input type="text" id="search-box" placeholder="&#128269; Search todos..." oninput="onSearch(this.value)">
+  <select class="tb-select" id="status-filter" onchange="onFilter()">
+    <option value="all">All Status</option>
+    <option value="pending">Pending</option>
+    <option value="in_progress">In Progress</option>
+    <option value="done">Done</option>
   </select>
-  <input type="text" id="add-text" placeholder="New todo text..." />
-  <input type="text" id="add-mission" placeholder="Mission..." style="width:140px" />
-  <button onclick="addTodo()">+ Add Todo</button>
-  <button class="secondary" onclick="exportAll()">Export All</button>
-  <button class="secondary" onclick="exportMission()">Export Mission</button>
+  <div class="tb-sep"></div>
+  <button class="tb-btn primary" onclick="openAddTodoModal()">+ Todo</button>
+  <button class="tb-btn" onclick="openAddMissionModal()">+ Mission</button>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" onclick="collapseAll()">&#8593; Collapse All</button>
+  <button class="tb-btn" onclick="expandAll()">&#8595; Expand All</button>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" onclick="exportAll()">&#8595; JSON</button>
+  <button class="tb-btn" onclick="exportMissionMd()">&#8595; MD</button>
+  <div class="tb-sep"></div>
+  <button class="tb-btn danger" onclick="clearDoneTodos()">&#10005; Clear Done</button>
 </div>
 
-<div id="main">
-  <!-- Sidebar -->
+<!-- BULK BAR -->
+<div id="bulk-bar">
+  <span id="bulk-count">0 selected</span>
+  <button class="tb-btn primary" onclick="bulkAction('done')">&#10003; Mark Done</button>
+  <button class="tb-btn" onclick="bulkAction('in_progress')">&#9654; In Progress</button>
+  <button class="tb-btn" onclick="bulkAction('pending')">&#9633; Pending</button>
+  <button class="tb-btn" id="bulk-move-btn" onclick="openBulkMoveModal()">&#10142; Move</button>
+  <button class="tb-btn danger" onclick="bulkAction('delete')">&#10005; Delete</button>
+  <button class="tb-btn" onclick="clearSelection()" style="margin-left:auto">&#10006; Clear</button>
+</div>
+
+<!-- BODY -->
+<div id="body">
+  <!-- SIDEBAR -->
   <div id="sidebar">
-    <div style="font-size:11px;color:#666;margin-bottom:8px;">MISSIONS</div>
-    <div id="sidebar-missions"></div>
-    <div id="openclaw-panel">
-      <div style="font-size:11px;color:#666;margin-bottom:5px;">OPENCLAW</div>
-      <div id="openclaw-status">Checking...</div>
+    <div id="sidebar-inner">
+      <div class="sb-section">Missions</div>
+      <div id="sb-missions"></div>
+      <button class="sb-add-mission" onclick="openAddMissionModal()">+ Add Mission</button>
+    </div>
+    <div id="openclaw-section">
+      <div class="sb-section">OpenClaw</div>
+      <div id="oc-status" class="oc-badge oc-offline">&#9679; Checking...</div>
     </div>
   </div>
 
-  <!-- Main content -->
+  <!-- MAIN -->
   <div id="content">
     <div id="missions-container"></div>
   </div>
 </div>
 
-<script>
-let state = { todos: [] };
-let ws = null;
-let dragSrcId = null;
-let activeFilter = 'all';
-let collapsedMissions = new Set();
+<!-- TOAST -->
+<div id="toast"></div>
 
-function connect() {
-  ws = new WebSocket('ws://' + location.host);
-  ws.onopen = () => { document.getElementById('ws-status').className = 'connected'; document.getElementById('ws-status').textContent = '\u25cf Live'; };
-  ws.onclose = () => { document.getElementById('ws-status').className = 'disconnected'; document.getElementById('ws-status').textContent = '\u25cf Disconnected'; setTimeout(connect, 3000); };
-  ws.onmessage = (e) => { const msg = JSON.parse(e.data); if (msg.type === 'state') { state = msg.data; render(); } };
+<!-- MODALS (injected by JS) -->
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const GITHUB_REPO = 'https://github.com/Michaelunkai/rlp-dashboard';
+const IS_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+
+async function resolveBackend() {
+  // 1. localStorage override
+  const stored = localStorage.getItem('rlp_backend');
+  if (stored) return stored;
+  // 2. Try to load tunnel-config.json from same origin (served by express or Netlify CDN)
+  try {
+    const r = await fetch('/tunnel-config.json?_=' + Date.now());
+    if (r.ok) { const d = await r.json(); if (d.tunnelUrl) return d.tunnelUrl; }
+  } catch(e) {}
+  // 3. Try GitHub raw
+  try {
+    const r = await fetch('https://raw.githubusercontent.com/Michaelunkai/rlp-dashboard/main/tunnel-config.json?_=' + Date.now());
+    if (r.ok) { const d = await r.json(); if (d.tunnelUrl) return d.tunnelUrl; }
+  } catch(e) {}
+  return null;
+}
+
+let BACKEND = IS_LOCAL ? '' : null;
+let BACKEND_WS = IS_LOCAL ? ('ws://' + location.host) : null;
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let state = { todos: [], missionExplanations: {} };
+let ws = null;
+let wsAlive = false;
+let searchQ = '';
+let statusFilter = 'all';
+let missionFilter = 'all';
+let selectedIds = new Set();
+let collapsedMissions = new Set();
+let dragSrcId = null;
+let dragMissionName = null;
+let undoStack = [];
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+(async () => {
+  if (!IS_LOCAL) {
+    BACKEND = await resolveBackend();
+    if (BACKEND) BACKEND_WS = BACKEND.replace('https://', 'wss://').replace('http://', 'ws://');
+  }
+  connect();
+  fetchState();
+  checkOC();
+  setInterval(() => { if (!wsAlive) fetchState(); }, 5000);
+  setInterval(checkOC, 20000);
+  // Keyboard shortcuts
+  document.addEventListener('keydown', handleKey);
+})();
+
+// ── BACKEND ───────────────────────────────────────────────────────────────────
+async function api(path, body) {
+  const url = (BACKEND || '') + path;
+  const opts = body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {};
+  const r = await fetch(url, opts);
+  return r.json();
 }
 
 async function fetchState() {
-  const r = await fetch('/api/rlp-state');
-  state = await r.json();
-  render();
+  try {
+    const d = await api('/api/rlp-state');
+    state = d;
+    render();
+  } catch(e) { setWsStatus('dead', 'Offline'); }
 }
 
-function getMissions() {
-  const map = {};
-  (state.todos || []).forEach(t => {
-    const m = t.mission || extractMission(t.text) || 'General';
-    if (!map[m]) map[m] = [];
-    map[m].push(t);
-  });
-  return map;
+function configBackend() {
+  const url = prompt('Backend URL (tunnel or localhost:3001):', BACKEND || '');
+  if (url !== null) {
+    if (url) { localStorage.setItem('rlp_backend', url); }
+    else { localStorage.removeItem('rlp_backend'); }
+    location.reload();
+  }
 }
 
-function extractMission(text) {
-  const m = text && text.match(/Mission:\s*(.+)/i);
-  return m ? m[1].trim() : null;
+async function triggerGitSync() {
+  try { await api('/api/github/sync', {}); toast('Sync triggered'); }
+  catch(e) { toast('Sync failed — backend offline'); }
 }
 
+// ── WEBSOCKET ─────────────────────────────────────────────────────────────────
+function connect() {
+  if (!BACKEND_WS) { setWsStatus('poll', 'Polling'); return; }
+  try {
+    ws = new WebSocket(BACKEND_WS);
+    ws.onopen = () => { wsAlive = true; setWsStatus('live', 'Live'); };
+    ws.onclose = () => { wsAlive = false; setWsStatus('dead', 'Reconnecting'); setTimeout(connect, 3000); };
+    ws.onerror = () => { wsAlive = false; setWsStatus('poll', 'Polling'); };
+    ws.onmessage = (e) => {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'state') { state = msg.data; render(); }
+      if (msg.type === 'config' && msg.data.tunnelUrl) {
+        BACKEND = msg.data.tunnelUrl;
+        BACKEND_WS = BACKEND.replace('https://', 'wss://').replace('http://', 'ws://');
+      }
+    };
+  } catch(e) { setWsStatus('poll', 'Polling'); }
+}
+
+function setWsStatus(cls, label) {
+  document.getElementById('ws-dot').className = cls;
+  document.getElementById('ws-label').textContent = label;
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
 function render() {
   renderStats();
   renderSidebar();
   renderMissions();
+  updateBulkBar();
+}
+
+function getMissions() {
+  const order = state.missionExplanations ? Object.keys(state.missionExplanations) : [];
+  const map = {};
+  order.forEach(m => { map[m] = []; });
+  (state.todos || []).forEach(t => {
+    const m = extractMission(t.text) || 'General';
+    if (!map[m]) map[m] = [];
+    map[m].push(t);
+  });
+  Object.keys(map).forEach(k => { if (!map[k].length) delete map[k]; });
+  return map;
+}
+
+function extractMission(text) {
+  const m = text && text.match(/[-\u2013]\s*Mission:\s*(.+?)$/i);
+  if (m) return m[1].trim();
+  const m2 = text && text.match(/Mission:\s*(.+)/i);
+  return m2 ? m2[1].trim() : null;
+}
+
+function filterTodos(todos) {
+  return todos.filter(t => {
+    if (statusFilter !== 'all' && t.status !== statusFilter) return false;
+    if (searchQ) {
+      const q = searchQ.toLowerCase();
+      if (!(t.text || '').toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
 }
 
 function renderStats() {
   const todos = state.todos || [];
   const total = todos.length;
   const done = todos.filter(t => t.status === 'done').length;
-  const inprog = todos.filter(t => t.status === 'in_progress').length;
-  const pending = todos.filter(t => t.status === 'pending').length;
+  const ip = todos.filter(t => t.status === 'in_progress').length;
+  const pend = todos.filter(t => t.status === 'pending').length;
   const pct = total ? Math.round(done / total * 100) : 0;
-
   document.getElementById('s-total').textContent = total;
   document.getElementById('s-done').textContent = done;
-  document.getElementById('s-inprog').textContent = inprog;
-  document.getElementById('s-pending').textContent = pending;
-  document.getElementById('overall-bar').style.width = pct + '%';
-  document.getElementById('overall-pct').textContent = pct + '%';
-
-  const barColor = pct >= 80 ? '#22c55e' : pct >= 40 ? '#eab308' : '#ef4444';
-  document.getElementById('overall-bar').style.background = barColor;
+  document.getElementById('s-inprog').textContent = ip;
+  document.getElementById('s-pending').textContent = pend;
+  document.getElementById('bar-fill').style.width = pct + '%';
+  document.getElementById('bar-fill').style.background = pct >= 80 ? '#22c55e' : pct >= 40 ? '#eab308' : '#7c3aed';
+  document.getElementById('bar-pct').textContent = pct + '%';
 }
 
 function renderSidebar() {
   const missions = getMissions();
-  const sel = document.getElementById('filter-select');
-  const prev = sel.value;
-  sel.innerHTML = '<option value="all">All Missions</option>';
-
-  const container = document.getElementById('sidebar-missions');
-  container.innerHTML = '';
-
+  const sel = document.getElementById('sb-missions');
+  sel.innerHTML = '';
   Object.entries(missions).forEach(([name, todos]) => {
     const done = todos.filter(t => t.status === 'done').length;
     const pct = todos.length ? Math.round(done / todos.length * 100) : 0;
     const color = pct >= 80 ? '#22c55e' : pct >= 40 ? '#eab308' : '#ef4444';
-
-    // Filter option
-    const opt = document.createElement('option');
-    opt.value = name; opt.textContent = name;
-    sel.appendChild(opt);
-
-    // Sidebar card
     const div = document.createElement('div');
-    div.className = 'sidebar-mission' + (activeFilter === name ? ' active' : '');
-    div.innerHTML = `<div class="sidebar-mission-name" title="${name}">${name}</div>
-      <div class="sidebar-mission-bar"><div class="sidebar-mission-fill" style="width:${pct}%;background:${color}"></div></div>
-      <div class="sidebar-mission-count">${done}/${todos.length} (${pct}%)</div>`;
-    div.onclick = () => { activeFilter = name; sel.value = name; renderSidebar(); renderMissions(); };
-    container.appendChild(div);
+    div.className = 'sb-mission' + (missionFilter === name ? ' active' : '');
+    div.innerHTML = `<div class="sb-mission-name" title="${esc(name)}">${esc(name)}</div>
+      <div class="sb-bar-wrap"><div class="sb-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="sb-count">${done}/${todos.length} &mdash; ${pct}%</div>`;
+    div.onclick = () => { missionFilter = missionFilter === name ? 'all' : name; render(); };
+    sel.appendChild(div);
   });
-
-  sel.value = prev !== 'all' && missions[prev] ? prev : 'all';
 }
 
 function renderMissions() {
   const missions = getMissions();
   const container = document.getElementById('missions-container');
   container.innerHTML = '';
-
-  const toShow = activeFilter === 'all' ? Object.entries(missions) : [[activeFilter, missions[activeFilter] || []]];
-
+  const toShow = missionFilter === 'all' ? Object.entries(missions) : (missions[missionFilter] ? [[missionFilter, missions[missionFilter]]] : []);
+  if (!toShow.length) { container.innerHTML = '<div class="empty">No todos match current filters.</div>'; return; }
   toShow.forEach(([name, todos]) => {
+    const filtered = filterTodos(todos);
     const done = todos.filter(t => t.status === 'done').length;
     const pct = todos.length ? Math.round(done / todos.length * 100) : 0;
     const color = pct >= 80 ? '#22c55e' : pct >= 40 ? '#eab308' : '#ef4444';
     const collapsed = collapsedMissions.has(name);
-
     const card = document.createElement('div');
     card.className = 'mission-card';
+    card.dataset.mission = name;
+    card.setAttribute('draggable', 'true');
     card.innerHTML = `
-      <div class="mission-header" onclick="toggleMission('${name.replace(/'/g,"\\'")}')">
-        <span class="mission-collapse-icon">${collapsed ? '&#9654;' : '&#9660;'}</span>
-        <span class="mission-name">${name}</span>
-        <div class="mission-progress-bar"><div class="mission-progress-fill" style="width:${pct}%;background:${color}"></div></div>
-        <span class="mission-pct">${pct}%</span>
-        <span class="mission-count-badge">${done}/${todos.length}</span>
+      <div class="mission-head" data-mission="${esc(name)}">
+        <span class="m-drag-handle" title="Drag to reorder mission">&#8597;</span>
+        <span class="m-collapse">${collapsed ? '&#9654;' : '&#9660;'}</span>
+        <div class="m-name" contenteditable="true" data-mission="${esc(name)}" onblur="saveMissionName(this)" onclick="event.stopPropagation()">${esc(name)}</div>
+        <div class="m-pbar-wrap"><div class="m-pbar-fill" style="width:${pct}%;background:${color}"></div></div>
+        <span class="m-pct">${pct}%</span>
+        <span class="m-count">${done}/${todos.length}</span>
+        <div class="m-actions" onclick="event.stopPropagation()">
+          <button class="m-btn" title="Mark all done" onclick="missionBulk('${esc(name)}','done')">&#10003;All</button>
+          <button class="m-btn" title="Mark all pending" onclick="missionBulk('${esc(name)}','pending')">&#9633;All</button>
+          <button class="m-btn" title="Add todo to this mission" onclick="openAddTodoModal('${esc(name)}')">+</button>
+          <button class="m-btn del" title="Delete mission" onclick="deleteMission('${esc(name)}')">&#10005;</button>
+        </div>
       </div>
-      <div class="mission-todos${collapsed ? ' collapsed' : ''}" id="mission-todos-${CSS.escape(name)}">
-        ${todos.map(t => renderTodoHTML(t)).join('')}
+      <div class="mission-body${collapsed ? ' collapsed' : ''}" id="mb-${CSS.escape(name)}">
+        ${filtered.length === 0 && searchQ ? '<div class="empty">No matches.</div>' : filtered.map(t => todoHTML(t)).join('')}
+        <div class="mission-footer">
+          <input class="m-add-input" type="text" placeholder="Add todo to ${esc(name)}..." id="quick-add-${CSS.escape(name)}"
+            onkeydown="if(event.key==='Enter')quickAddTodo('${esc(name)}')">
+          <button class="m-add-btn" onclick="quickAddTodo('${esc(name)}')">Add</button>
+        </div>
       </div>`;
+    card.querySelector('.mission-head').addEventListener('click', (e) => {
+      if (e.target.closest('.m-actions') || e.target.closest('.m-name')) return;
+      toggleMission(name);
+    });
+    // Mission drag
+    card.addEventListener('dragstart', (e) => {
+      if (!e.target.classList.contains('m-drag-handle') && !e.target.closest('.m-drag-handle')) { e.preventDefault(); return; }
+      dragMissionName = name; card.style.opacity = '.4';
+    });
+    card.addEventListener('dragend', () => { card.style.opacity = ''; dragMissionName = null; });
+    card.addEventListener('dragover', (e) => { e.preventDefault(); if (dragMissionName && dragMissionName !== name) card.classList.add('drag-over-mission'); });
+    card.addEventListener('dragleave', () => card.classList.remove('drag-over-mission'));
+    card.addEventListener('drop', (e) => {
+      e.preventDefault(); card.classList.remove('drag-over-mission');
+      if (!dragMissionName || dragMissionName === name) return;
+      const missions2 = getMissions();
+      const names = Object.keys(missions2);
+      const si = names.indexOf(dragMissionName), ti = names.indexOf(name);
+      if (si < 0 || ti < 0) return;
+      names.splice(si, 1); names.splice(ti, 0, dragMissionName);
+      api('/api/mission/reorder', { names }).then(fetchState);
+    });
     container.appendChild(card);
+    // Attach todo drag events
+    card.querySelectorAll('.todo-item').forEach(attachTodoDrag);
   });
-
-  // Attach drag events
-  document.querySelectorAll('.todo-item').forEach(attachDragEvents);
 }
 
-function renderTodoHTML(t) {
-  const statusIcon = t.status === 'done' ? '<span class="todo-status status-done">[x]</span>' :
-    t.status === 'in_progress' ? '<span class="todo-status status-inprog">[&gt;]</span>' :
-    '<span class="todo-status status-pending">[ ]</span>';
-  const textClass = 'todo-text' + (t.status === 'done' ? ' done-text' : '');
-  const shortText = (t.text || '').substring(0, 200);
+function todoHTML(t) {
+  const sIcon = t.status === 'done' ? '<span class="todo-status status-done" title="Click to cycle status">[x]</span>'
+    : t.status === 'in_progress' ? '<span class="todo-status status-ip" title="Click to cycle status">[&gt;]</span>'
+    : '<span class="todo-status status-pending" title="Click to cycle status">[ ]</span>';
+  const tClass = 'todo-text' + (t.status === 'done' ? ' done' : '');
+  const shortText = (t.text || '').replace(/\s*[-\u2013]\s*Mission:\s*.+$/i, '').substring(0, 300);
+  const checked = selectedIds.has(t.id) ? 'checked' : '';
   return `<div class="todo-item" draggable="true" data-id="${t.id}">
-    ${statusIcon}
-    <div class="${textClass}" contenteditable="true" data-id="${t.id}" onblur="saveText(this)"
-      title="${(t.text||'').replace(/"/g,'&quot;')}">${escHtml(shortText)}</div>
-    <div class="todo-actions">
-      <button class="btn-delete" title="Delete" onclick="deleteTodo(${t.id})">&#10005;</button>
+    <input type="checkbox" class="todo-cb" data-id="${t.id}" ${checked} onchange="toggleSelect(${t.id},this.checked)">
+    <span data-cycle-id="${t.id}" onclick="cycleTodo(${t.id})">${sIcon}</span>
+    <div class="${tClass}" contenteditable="true" data-edit-id="${t.id}" onblur="saveText(this)" title="${esc(t.text || '')}">${esc(shortText)}</div>
+    <span class="todo-id">#${t.id}</span>
+    <div class="todo-acts">
+      <button class="t-btn" title="Mark done" onclick="markTodo(${t.id},'done')">&#10003;</button>
+      <button class="t-btn" title="In progress" onclick="markTodo(${t.id},'in_progress')">&#9654;</button>
+      <button class="t-btn" title="Pending" onclick="markTodo(${t.id},'pending')">&#9633;</button>
+      <button class="t-btn" title="Move to mission" onclick="openMoveTodoModal(${t.id})">&#10142;</button>
+      <button class="t-btn del" title="Delete" onclick="deleteTodo(${t.id})">&#10005;</button>
     </div>
   </div>`;
 }
 
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function toggleMission(name) {
-  if (collapsedMissions.has(name)) collapsedMissions.delete(name);
-  else collapsedMissions.add(name);
-  renderMissions();
-}
-
-function attachDragEvents(el) {
-  el.addEventListener('dragstart', e => { dragSrcId = parseInt(el.dataset.id); el.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
-  el.addEventListener('dragend', () => { el.classList.remove('dragging'); document.querySelectorAll('.todo-item').forEach(i => i.classList.remove('drag-over')); });
-  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drag-over'); });
+// ── TODO DRAG ─────────────────────────────────────────────────────────────────
+function attachTodoDrag(el) {
+  el.addEventListener('dragstart', e => {
+    dragSrcId = parseInt(el.dataset.id);
+    el.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.stopPropagation();
+  });
+  el.addEventListener('dragend', () => { el.classList.remove('dragging'); document.querySelectorAll('.todo-item').forEach(i => i.classList.remove('drag-over')); dragSrcId = null; });
+  el.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); if (dragSrcId !== null) el.classList.add('drag-over'); });
   el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
   el.addEventListener('drop', e => {
-    e.preventDefault();
+    e.preventDefault(); e.stopPropagation();
     el.classList.remove('drag-over');
-    const targetId = parseInt(el.dataset.id);
-    if (dragSrcId === targetId) return;
-    // Reorder in local state
+    const tId = parseInt(el.dataset.id);
+    if (!dragSrcId || dragSrcId === tId) return;
     const todos = state.todos;
-    const srcIdx = todos.findIndex(t => t.id === dragSrcId);
-    const tgtIdx = todos.findIndex(t => t.id === targetId);
-    if (srcIdx < 0 || tgtIdx < 0) return;
-    const [item] = todos.splice(srcIdx, 1);
-    todos.splice(tgtIdx, 0, item);
+    const si = todos.findIndex(t => t.id === dragSrcId);
+    const ti = todos.findIndex(t => t.id === tId);
+    if (si < 0 || ti < 0) return;
+    const [item] = todos.splice(si, 1);
+    todos.splice(ti, 0, item);
     render();
-    // Persist
-    fetch('/api/rlp-state/todo/reorder', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ ids: todos.map(t=>t.id) }) });
+    api('/api/todo/reorder', { ids: todos.map(t => t.id) });
   });
 }
 
+// ── ACTIONS ───────────────────────────────────────────────────────────────────
+function toggleMission(name) {
+  if (collapsedMissions.has(name)) collapsedMissions.delete(name); else collapsedMissions.add(name);
+  renderMissions();
+}
+function collapseAll() { Object.keys(getMissions()).forEach(m => collapsedMissions.add(m)); renderMissions(); }
+function expandAll() { collapsedMissions.clear(); renderMissions(); }
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
+
+function cycleTodo(id) {
+  const cycle = { pending: 'in_progress', in_progress: 'done', done: 'pending' };
+  const t = state.todos.find(x => x.id === id);
+  if (!t) return;
+  const newStatus = cycle[t.status] || 'pending';
+  pushUndo({ action: 'mark', id, prev: t.status });
+  t.status = newStatus;
+  render();
+  api('/api/todo/mark', { id, status: newStatus });
+}
+
+function markTodo(id, status) {
+  const t = state.todos.find(x => x.id === id);
+  if (!t) return;
+  pushUndo({ action: 'mark', id, prev: t.status });
+  t.status = status;
+  render();
+  api('/api/todo/mark', { id, status });
+}
+
 function saveText(el) {
-  const id = parseInt(el.dataset.id);
-  const text = el.textContent;
-  fetch('/api/rlp-state/todo/update-text', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id, text }) });
+  const id = parseInt(el.dataset.editId);
+  const mission = extractMission(state.todos.find(t => t.id === id)?.text || '');
+  const newText = el.textContent.trim() + (mission ? ` - Mission: ${mission}` : '');
+  api('/api/todo/update-text', { id, text: newText });
 }
 
 function deleteTodo(id) {
-  if (!confirm('Delete todo #' + id + '?')) return;
-  fetch('/api/rlp-state/todo/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id }) })
-    .then(() => fetchState());
+  const t = state.todos.find(x => x.id === id);
+  if (!t) return;
+  pushUndo({ action: 'restore', todo: JSON.parse(JSON.stringify(t)) });
+  state.todos = state.todos.filter(x => x.id !== id);
+  render();
+  api('/api/todo/delete', { id });
+  toast(`Deleted #${id} — Ctrl+Z to undo`);
 }
 
-async function addTodo() {
-  const text = document.getElementById('add-text').value.trim();
-  const mission = document.getElementById('add-mission').value.trim() || 'General';
+function saveMissionName(el) {
+  const oldName = el.dataset.mission;
+  const newName = el.textContent.trim();
+  if (!newName || newName === oldName) return;
+  api('/api/mission/rename', { oldName, newName }).then(fetchState);
+  toast(`Renamed "${oldName}" → "${newName}"`);
+}
+
+function deleteMission(name) {
+  const withTodos = state.todos.filter(t => extractMission(t.text) === name).length;
+  const msg = withTodos > 0
+    ? `Delete mission "${name}"?\n\n${withTodos} todos will be reassigned to General.\nClick OK to delete todos, Cancel to keep them.`
+    : `Delete mission "${name}"?`;
+  const deleteTodos = confirm(msg);
+  api('/api/mission/delete', { name, deleteTodos }).then(fetchState);
+  toast(`Deleted mission "${name}"`);
+}
+
+function missionBulk(missionName, status) {
+  const ids = (getMissions()[missionName] || []).map(t => t.id);
+  ids.forEach(id => { const t = state.todos.find(x => x.id === id); if (t) t.status = status; });
+  render();
+  api('/api/todo/bulk', { ids, action: status });
+}
+
+async function quickAddTodo(mission) {
+  const inp = document.getElementById(`quick-add-${CSS.escape(mission)}`);
+  const text = inp?.value.trim();
   if (!text) return;
-  await fetch('/api/rlp-state/todo/add', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ text, mission }) });
-  document.getElementById('add-text').value = '';
+  await api('/api/todo/add', { text, mission });
+  if (inp) inp.value = '';
   fetchState();
+  toast('Todo added');
 }
 
+function clearDoneTodos() {
+  const ids = state.todos.filter(t => t.status === 'done').map(t => t.id);
+  if (!ids.length) { toast('No done todos to clear'); return; }
+  if (!confirm(`Remove ${ids.length} completed todos?`)) return;
+  state.todos = state.todos.filter(t => t.status !== 'done');
+  render();
+  api('/api/todo/bulk', { ids, action: 'delete' });
+  toast(`Cleared ${ids.length} done todos`);
+}
+
+// ── BULK SELECT ───────────────────────────────────────────────────────────────
+function toggleSelect(id, checked) {
+  if (checked) selectedIds.add(id); else selectedIds.delete(id);
+  updateBulkBar();
+}
+function clearSelection() { selectedIds.clear(); render(); }
+function updateBulkBar() {
+  const bar = document.getElementById('bulk-bar');
+  const cnt = selectedIds.size;
+  if (cnt > 0) { bar.classList.add('visible'); document.getElementById('bulk-count').textContent = cnt + ' selected'; }
+  else bar.classList.remove('visible');
+}
+function bulkAction(action) {
+  const ids = [...selectedIds];
+  if (!ids.length) return;
+  if (action === 'delete' && !confirm(`Delete ${ids.length} todos?`)) return;
+  if (action === 'delete') state.todos = state.todos.filter(t => !selectedIds.has(t.id));
+  else state.todos.forEach(t => { if (selectedIds.has(t.id)) t.status = action; });
+  selectedIds.clear();
+  render();
+  api('/api/todo/bulk', { ids, action });
+  toast(`Bulk: ${action} applied to ${ids.length} todos`);
+}
+
+// ── MODALS ────────────────────────────────────────────────────────────────────
+function openAddTodoModal(defaultMission) {
+  const missions = Object.keys(getMissions());
+  const opts = missions.map(m => `<option value="${esc(m)}" ${m === defaultMission ? 'selected' : ''}>${esc(m)}</option>`).join('');
+  showModal('Add Todo', `
+    <label>Todo Text</label>
+    <textarea id="m-text" rows="3" style="resize:vertical" placeholder="Describe the todo..."></textarea>
+    <label>Mission</label>
+    <select id="m-mission">${opts}<option value="General">General</option></select>
+    <label>Status</label>
+    <select id="m-status">
+      <option value="pending">Pending</option>
+      <option value="in_progress">In Progress</option>
+      <option value="done">Done</option>
+    </select>
+  `, async () => {
+    const text = document.getElementById('m-text').value.trim();
+    const mission = document.getElementById('m-mission').value;
+    const status = document.getElementById('m-status').value;
+    if (!text) return toast('Text required');
+    await api('/api/todo/add', { text, mission, status });
+    fetchState();
+    toast('Todo added');
+  });
+  setTimeout(() => document.getElementById('m-text')?.focus(), 100);
+}
+
+function openAddMissionModal() {
+  showModal('Add Mission', `
+    <label>Mission Name</label>
+    <input id="m-mname" type="text" placeholder="e.g. Deploy Backend">
+    <label>Goal (optional)</label>
+    <textarea id="m-mgoal" rows="3" style="resize:vertical" placeholder="Describe the mission goal..."></textarea>
+  `, async () => {
+    const name = document.getElementById('m-mname').value.trim();
+    const goal = document.getElementById('m-mgoal').value.trim();
+    if (!name) return toast('Name required');
+    await api('/api/mission/add', { name, goal });
+    fetchState();
+    toast(`Mission "${name}" added`);
+  });
+  setTimeout(() => document.getElementById('m-mname')?.focus(), 100);
+}
+
+function openMoveTodoModal(id) {
+  const missions = Object.keys(getMissions());
+  const opts = missions.map(m => `<option>${esc(m)}</option>`).join('');
+  showModal('Move Todo', `
+    <label>Move todo #${id} to mission:</label>
+    <select id="m-move-target">${opts}</select>
+  `, async () => {
+    const mission = document.getElementById('m-move-target').value;
+    await api('/api/todo/move', { id, mission });
+    fetchState();
+    toast(`Todo #${id} moved to "${mission}"`);
+  });
+}
+
+function openBulkMoveModal() {
+  const missions = Object.keys(getMissions());
+  const opts = missions.map(m => `<option>${esc(m)}</option>`).join('');
+  showModal('Move Selected', `
+    <label>Move ${selectedIds.size} todos to:</label>
+    <select id="m-bmove-target">${opts}</select>
+  `, async () => {
+    const mission = document.getElementById('m-bmove-target').value;
+    const ids = [...selectedIds];
+    await api('/api/todo/bulk', { ids, action: 'move', mission });
+    selectedIds.clear();
+    fetchState();
+    toast(`Moved ${ids.length} todos to "${mission}"`);
+  });
+}
+
+function showModal(title, bodyHtml, onOk) {
+  const existing = document.getElementById('modal-overlay');
+  if (existing) existing.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'modal-overlay';
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal">
+    <h2>${esc(title)}</h2>
+    ${bodyHtml}
+    <div class="modal-btns">
+      <button class="modal-btn cancel" onclick="document.getElementById('modal-overlay').remove()">Cancel</button>
+      <button class="modal-btn ok" id="modal-ok-btn">OK</button>
+    </div>
+  </div>`;
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+  document.getElementById('modal-ok-btn').onclick = () => { onOk(); overlay.remove(); };
+}
+
+// ── EXPORT ────────────────────────────────────────────────────────────────────
 function exportAll() {
-  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = 'rlp-state.json'; a.click();
+  dlBlob(JSON.stringify(state, null, 2), 'rlp-state.json', 'application/json');
+  toast('Downloaded rlp-state.json');
 }
-
-function exportMission() {
+function exportMissionMd() {
   const missions = getMissions();
-  const name = activeFilter !== 'all' ? activeFilter : Object.keys(missions)[0];
+  const name = missionFilter !== 'all' ? missionFilter : Object.keys(missions)[0];
   const todos = missions[name] || [];
-  const md = `# ${name}\n\n` + todos.map(t => `- [${t.status==='done'?'x':' '}] ${t.text}`).join('\n');
-  const blob = new Blob([md], { type: 'text/markdown' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = name.replace(/\s+/g, '-') + '.md'; a.click();
+  const md = `# ${name}\n\n` + todos.map(t => `- [${t.status === 'done' ? 'x' : ' '}] ${(t.text || '').replace(/\s*[-–]\s*Mission:\s*.+$/i, '')}`).join('\n');
+  dlBlob(md, name.replace(/\s+/g, '-') + '.md', 'text/markdown');
+  toast('Downloaded markdown');
+}
+function dlBlob(content, name, type) {
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([content], { type })), download: name });
+  a.click();
 }
 
-// OpenClaw status
-async function checkOpenClaw() {
+// ── SEARCH / FILTER ───────────────────────────────────────────────────────────
+function onSearch(q) { searchQ = q; renderMissions(); }
+function onFilter() { statusFilter = document.getElementById('status-filter').value; renderMissions(); }
+
+// ── OPENCLAW ──────────────────────────────────────────────────────────────────
+async function checkOC() {
   try {
-    const r = await fetch('/api/openclaw/status');
-    const d = await r.json();
-    const el = document.getElementById('openclaw-status');
+    const d = await api('/api/openclaw/status');
+    const el = document.getElementById('oc-status');
     if (d.status === 'offline' || d.error) {
-      el.innerHTML = '<span class="badge-offline">&#9679; Gateway offline</span>';
+      el.className = 'oc-badge oc-offline'; el.innerHTML = '&#9679; Gateway offline';
     } else {
-      el.innerHTML = '<span class="badge-online">&#9679; Connected</span>';
+      el.className = 'oc-badge oc-online'; el.innerHTML = '&#9679; Connected';
     }
-  } catch(e) {
-    document.getElementById('openclaw-status').innerHTML = '<span class="badge-offline">&#9679; Offline</span>';
-  }
+  } catch(e) {}
 }
 
-// Filter change
-document.getElementById('filter-select').addEventListener('change', function() {
-  activeFilter = this.value;
-  renderSidebar();
-  renderMissions();
-});
+// ── UNDO ─────────────────────────────────────────────────────────────────────
+function pushUndo(cmd) { undoStack.push(cmd); if (undoStack.length > 20) undoStack.shift(); }
+async function undo() {
+  const cmd = undoStack.pop();
+  if (!cmd) return;
+  if (cmd.action === 'mark') { await api('/api/todo/mark', { id: cmd.id, status: cmd.prev }); fetchState(); }
+  if (cmd.action === 'restore') { await api('/api/todo/add', { text: cmd.todo.text, status: cmd.todo.status }); fetchState(); }
+  toast('Undone');
+}
 
-// Auto-refresh fallback if WS fails
-setInterval(() => { if (!ws || ws.readyState !== WebSocket.OPEN) fetchState(); }, 5000);
+// ── KEYBOARD ─────────────────────────────────────────────────────────────────
+function handleKey(e) {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
+  if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); }
+  if (e.key === '/' ) { e.preventDefault(); document.getElementById('search-box').focus(); }
+  if (e.key === 'Escape') { clearSelection(); document.getElementById('search-box').value = ''; searchQ = ''; renderMissions(); }
+  if (e.key === 'n' && e.ctrlKey) { e.preventDefault(); openAddTodoModal(); }
+}
 
-// Init
-connect();
-fetchState();
-checkOpenClaw();
-setInterval(checkOpenClaw, 15000);
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function toast(msg, dur = 2800) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), dur);
+}
 </script>
 </body>
 </html>
