@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RLP Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #1a1a2e; color: #e0e0e0; font-family: 'Courier New', monospace; font-size: 13px; }
+
+  /* Stats Bar */
+  #stats-bar {
+    background: #0d0d1a;
+    border-bottom: 1px solid #333;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    position: sticky; top: 0; z-index: 100;
+  }
+  #stats-bar h1 { color: #7c3aed; font-size: 16px; margin-right: 10px; }
+  .stat { color: #aaa; }
+  .stat span { color: #fff; font-weight: bold; }
+  #overall-bar-wrap { flex: 1; min-width: 200px; background: #333; border-radius: 4px; height: 14px; overflow: hidden; }
+  #overall-bar { height: 100%; background: #7c3aed; transition: width 0.5s; border-radius: 4px; }
+  #overall-pct { color: #7c3aed; font-weight: bold; min-width: 40px; }
+  #ws-status { margin-left: auto; font-size: 11px; }
+  #ws-status.connected { color: #22c55e; }
+  #ws-status.disconnected { color: #ef4444; }
+
+  /* Controls */
+  #controls {
+    padding: 10px 20px;
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    background: #111127; border-bottom: 1px solid #222;
+  }
+  select, input[type=text] {
+    background: #0d0d1a; color: #e0e0e0; border: 1px solid #444;
+    padding: 5px 10px; border-radius: 4px; font-family: inherit; font-size: 12px;
+  }
+  button {
+    background: #7c3aed; color: #fff; border: none; padding: 5px 12px;
+    border-radius: 4px; cursor: pointer; font-size: 12px; font-family: inherit;
+  }
+  button:hover { background: #6d28d9; }
+  button.secondary { background: #374151; }
+  button.secondary:hover { background: #4b5563; }
+  button.danger { background: #dc2626; }
+  button.danger:hover { background: #b91c1c; }
+  #add-text { width: 300px; }
+
+  /* Main layout */
+  #main { display: flex; gap: 0; }
+  #sidebar { width: 220px; min-width: 180px; background: #111127; border-right: 1px solid #222; padding: 10px; height: calc(100vh - 90px); overflow-y: auto; position: sticky; top: 90px; }
+  #content { flex: 1; padding: 15px; overflow-y: auto; }
+
+  /* Sidebar missions */
+  .sidebar-mission {
+    padding: 6px 8px; margin-bottom: 6px; border-radius: 4px;
+    cursor: pointer; border-left: 3px solid transparent;
+    transition: background 0.2s;
+  }
+  .sidebar-mission:hover { background: #1a1a3e; }
+  .sidebar-mission.active { background: #1a1a3e; border-left-color: #7c3aed; }
+  .sidebar-mission-name { font-size: 11px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sidebar-mission-bar { height: 4px; background: #333; border-radius: 2px; margin-top: 4px; overflow: hidden; }
+  .sidebar-mission-fill { height: 100%; border-radius: 2px; }
+  .sidebar-mission-count { font-size: 10px; color: #666; margin-top: 2px; }
+
+  /* Mission cards */
+  .mission-card { background: #16213e; border: 1px solid #2a2a4a; border-radius: 8px; margin-bottom: 15px; overflow: hidden; }
+  .mission-header {
+    padding: 10px 14px; cursor: pointer; display: flex; align-items: center; gap: 10px;
+    background: #1a1a3e;
+  }
+  .mission-header:hover { background: #1e1e48; }
+  .mission-name { font-weight: bold; font-size: 13px; flex: 1; }
+  .mission-progress-bar { width: 80px; height: 8px; background: #333; border-radius: 4px; overflow: hidden; }
+  .mission-progress-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+  .mission-pct { font-size: 11px; color: #aaa; min-width: 35px; text-align: right; }
+  .mission-count-badge { font-size: 10px; color: #888; }
+  .mission-collapse-icon { color: #666; font-size: 10px; }
+  .mission-todos { padding: 8px; }
+  .mission-todos.collapsed { display: none; }
+
+  /* Todo items */
+  .todo-item {
+    display: flex; align-items: flex-start; gap: 8px; padding: 5px 8px;
+    border-radius: 4px; margin-bottom: 3px; cursor: grab;
+    border: 1px solid transparent;
+    transition: background 0.15s;
+  }
+  .todo-item:hover { background: #1e2040; }
+  .todo-item.dragging { opacity: 0.4; background: #2a1a5e; }
+  .todo-item.drag-over { border-color: #7c3aed; background: #1a1040; }
+  .todo-status { font-size: 12px; min-width: 20px; margin-top: 1px; }
+  .status-done { color: #22c55e; }
+  .status-inprog { color: #3b82f6; }
+  .status-pending { color: #888; }
+  .todo-text {
+    flex: 1; line-height: 1.4; word-break: break-word; outline: none;
+    border-bottom: 1px solid transparent;
+  }
+  .todo-text[contenteditable=true]:focus { border-bottom-color: #7c3aed; }
+  .todo-text.done-text { color: #555; text-decoration: line-through; }
+  .todo-actions { display: flex; gap: 4px; opacity: 0; transition: opacity 0.15s; }
+  .todo-item:hover .todo-actions { opacity: 1; }
+  .btn-delete { background: none; border: none; color: #ef4444; cursor: pointer; padding: 0 4px; font-size: 14px; line-height: 1; }
+  .btn-delete:hover { color: #dc2626; background: none; }
+
+  /* OpenClaw sidebar */
+  #openclaw-panel { padding: 10px; border-top: 1px solid #222; margin-top: 10px; }
+  #openclaw-status { font-size: 11px; }
+  .badge-online { color: #22c55e; }
+  .badge-offline { color: #ef4444; }
+
+  /* Filter dropdown */
+  #filter-select { min-width: 160px; }
+</style>
+</head>
+<body>
+
+<!-- Stats Bar -->
+<div id="stats-bar">
+  <h1>RLP Dashboard</h1>
+  <div class="stat">Total: <span id="s-total">0</span></div>
+  <div class="stat">Done: <span id="s-done">0</span></div>
+  <div class="stat">Active: <span id="s-inprog">0</span></div>
+  <div class="stat">Pending: <span id="s-pending">0</span></div>
+  <div id="overall-bar-wrap"><div id="overall-bar" style="width:0%"></div></div>
+  <div id="overall-pct">0%</div>
+  <div id="ws-status" class="disconnected">&#9679; Disconnected</div>
+</div>
+
+<!-- Controls -->
+<div id="controls">
+  <select id="filter-select">
+    <option value="all">All Missions</option>
+  </select>
+  <input type="text" id="add-text" placeholder="New todo text..." />
+  <input type="text" id="add-mission" placeholder="Mission..." style="width:140px" />
+  <button onclick="addTodo()">+ Add Todo</button>
+  <button class="secondary" onclick="exportAll()">Export All</button>
+  <button class="secondary" onclick="exportMission()">Export Mission</button>
+</div>
+
+<div id="main">
+  <!-- Sidebar -->
+  <div id="sidebar">
+    <div style="font-size:11px;color:#666;margin-bottom:8px;">MISSIONS</div>
+    <div id="sidebar-missions"></div>
+    <div id="openclaw-panel">
+      <div style="font-size:11px;color:#666;margin-bottom:5px;">OPENCLAW</div>
+      <div id="openclaw-status">Checking...</div>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div id="content">
+    <div id="missions-container"></div>
+  </div>
+</div>
+
+<script>
+let state = { todos: [] };
+let ws = null;
+let dragSrcId = null;
+let activeFilter = 'all';
+let collapsedMissions = new Set();
+
+function connect() {
+  ws = new WebSocket('ws://' + location.host);
+  ws.onopen = () => { document.getElementById('ws-status').className = 'connected'; document.getElementById('ws-status').textContent = '\u25cf Live'; };
+  ws.onclose = () => { document.getElementById('ws-status').className = 'disconnected'; document.getElementById('ws-status').textContent = '\u25cf Disconnected'; setTimeout(connect, 3000); };
+  ws.onmessage = (e) => { const msg = JSON.parse(e.data); if (msg.type === 'state') { state = msg.data; render(); } };
+}
+
+async function fetchState() {
+  const r = await fetch('/api/rlp-state');
+  state = await r.json();
+  render();
+}
+
+function getMissions() {
+  const map = {};
+  (state.todos || []).forEach(t => {
+    const m = t.mission || extractMission(t.text) || 'General';
+    if (!map[m]) map[m] = [];
+    map[m].push(t);
+  });
+  return map;
+}
+
+function extractMission(text) {
+  const m = text && text.match(/Mission:\s*(.+)/i);
+  return m ? m[1].trim() : null;
+}
+
+function render() {
+  renderStats();
+  renderSidebar();
+  renderMissions();
+}
+
+function renderStats() {
+  const todos = state.todos || [];
+  const total = todos.length;
+  const done = todos.filter(t => t.status === 'done').length;
+  const inprog = todos.filter(t => t.status === 'in_progress').length;
+  const pending = todos.filter(t => t.status === 'pending').length;
+  const pct = total ? Math.round(done / total * 100) : 0;
+
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('s-done').textContent = done;
+  document.getElementById('s-inprog').textContent = inprog;
+  document.getElementById('s-pending').textContent = pending;
+  document.getElementById('overall-bar').style.width = pct + '%';
+  document.getElementById('overall-pct').textContent = pct + '%';
+
+  const barColor = pct >= 80 ? '#22c55e' : pct >= 40 ? '#eab308' : '#ef4444';
+  document.getElementById('overall-bar').style.background = barColor;
+}
+
+function renderSidebar() {
+  const missions = getMissions();
+  const sel = document.getElementById('filter-select');
+  const prev = sel.value;
+  sel.innerHTML = '<option value="all">All Missions</option>';
+
+  const container = document.getElementById('sidebar-missions');
+  container.innerHTML = '';
+
+  Object.entries(missions).forEach(([name, todos]) => {
+    const done = todos.filter(t => t.status === 'done').length;
+    const pct = todos.length ? Math.round(done / todos.length * 100) : 0;
+    const color = pct >= 80 ? '#22c55e' : pct >= 40 ? '#eab308' : '#ef4444';
+
+    // Filter option
+    const opt = document.createElement('option');
+    opt.value = name; opt.textContent = name;
+    sel.appendChild(opt);
+
+    // Sidebar card
+    const div = document.createElement('div');
+    div.className = 'sidebar-mission' + (activeFilter === name ? ' active' : '');
+    div.innerHTML = `<div class="sidebar-mission-name" title="${name}">${name}</div>
+      <div class="sidebar-mission-bar"><div class="sidebar-mission-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="sidebar-mission-count">${done}/${todos.length} (${pct}%)</div>`;
+    div.onclick = () => { activeFilter = name; sel.value = name; renderSidebar(); renderMissions(); };
+    container.appendChild(div);
+  });
+
+  sel.value = prev !== 'all' && missions[prev] ? prev : 'all';
+}
+
+function renderMissions() {
+  const missions = getMissions();
+  const container = document.getElementById('missions-container');
+  container.innerHTML = '';
+
+  const toShow = activeFilter === 'all' ? Object.entries(missions) : [[activeFilter, missions[activeFilter] || []]];
+
+  toShow.forEach(([name, todos]) => {
+    const done = todos.filter(t => t.status === 'done').length;
+    const pct = todos.length ? Math.round(done / todos.length * 100) : 0;
+    const color = pct >= 80 ? '#22c55e' : pct >= 40 ? '#eab308' : '#ef4444';
+    const collapsed = collapsedMissions.has(name);
+
+    const card = document.createElement('div');
+    card.className = 'mission-card';
+    card.innerHTML = `
+      <div class="mission-header" onclick="toggleMission('${name.replace(/'/g,"\\'")}')">
+        <span class="mission-collapse-icon">${collapsed ? '&#9654;' : '&#9660;'}</span>
+        <span class="mission-name">${name}</span>
+        <div class="mission-progress-bar"><div class="mission-progress-fill" style="width:${pct}%;background:${color}"></div></div>
+        <span class="mission-pct">${pct}%</span>
+        <span class="mission-count-badge">${done}/${todos.length}</span>
+      </div>
+      <div class="mission-todos${collapsed ? ' collapsed' : ''}" id="mission-todos-${CSS.escape(name)}">
+        ${todos.map(t => renderTodoHTML(t)).join('')}
+      </div>`;
+    container.appendChild(card);
+  });
+
+  // Attach drag events
+  document.querySelectorAll('.todo-item').forEach(attachDragEvents);
+}
+
+function renderTodoHTML(t) {
+  const statusIcon = t.status === 'done' ? '<span class="todo-status status-done">[x]</span>' :
+    t.status === 'in_progress' ? '<span class="todo-status status-inprog">[&gt;]</span>' :
+    '<span class="todo-status status-pending">[ ]</span>';
+  const textClass = 'todo-text' + (t.status === 'done' ? ' done-text' : '');
+  const shortText = (t.text || '').substring(0, 200);
+  return `<div class="todo-item" draggable="true" data-id="${t.id}">
+    ${statusIcon}
+    <div class="${textClass}" contenteditable="true" data-id="${t.id}" onblur="saveText(this)"
+      title="${(t.text||'').replace(/"/g,'&quot;')}">${escHtml(shortText)}</div>
+    <div class="todo-actions">
+      <button class="btn-delete" title="Delete" onclick="deleteTodo(${t.id})">&#10005;</button>
+    </div>
+  </div>`;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function toggleMission(name) {
+  if (collapsedMissions.has(name)) collapsedMissions.delete(name);
+  else collapsedMissions.add(name);
+  renderMissions();
+}
+
+function attachDragEvents(el) {
+  el.addEventListener('dragstart', e => { dragSrcId = parseInt(el.dataset.id); el.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+  el.addEventListener('dragend', () => { el.classList.remove('dragging'); document.querySelectorAll('.todo-item').forEach(i => i.classList.remove('drag-over')); });
+  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drag-over'); });
+  el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+  el.addEventListener('drop', e => {
+    e.preventDefault();
+    el.classList.remove('drag-over');
+    const targetId = parseInt(el.dataset.id);
+    if (dragSrcId === targetId) return;
+    // Reorder in local state
+    const todos = state.todos;
+    const srcIdx = todos.findIndex(t => t.id === dragSrcId);
+    const tgtIdx = todos.findIndex(t => t.id === targetId);
+    if (srcIdx < 0 || tgtIdx < 0) return;
+    const [item] = todos.splice(srcIdx, 1);
+    todos.splice(tgtIdx, 0, item);
+    render();
+    // Persist
+    fetch('/api/rlp-state/todo/reorder', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ ids: todos.map(t=>t.id) }) });
+  });
+}
+
+function saveText(el) {
+  const id = parseInt(el.dataset.id);
+  const text = el.textContent;
+  fetch('/api/rlp-state/todo/update-text', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id, text }) });
+}
+
+function deleteTodo(id) {
+  if (!confirm('Delete todo #' + id + '?')) return;
+  fetch('/api/rlp-state/todo/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id }) })
+    .then(() => fetchState());
+}
+
+async function addTodo() {
+  const text = document.getElementById('add-text').value.trim();
+  const mission = document.getElementById('add-mission').value.trim() || 'General';
+  if (!text) return;
+  await fetch('/api/rlp-state/todo/add', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ text, mission }) });
+  document.getElementById('add-text').value = '';
+  fetchState();
+}
+
+function exportAll() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'rlp-state.json'; a.click();
+}
+
+function exportMission() {
+  const missions = getMissions();
+  const name = activeFilter !== 'all' ? activeFilter : Object.keys(missions)[0];
+  const todos = missions[name] || [];
+  const md = `# ${name}\n\n` + todos.map(t => `- [${t.status==='done'?'x':' '}] ${t.text}`).join('\n');
+  const blob = new Blob([md], { type: 'text/markdown' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = name.replace(/\s+/g, '-') + '.md'; a.click();
+}
+
+// OpenClaw status
+async function checkOpenClaw() {
+  try {
+    const r = await fetch('/api/openclaw/status');
+    const d = await r.json();
+    const el = document.getElementById('openclaw-status');
+    if (d.status === 'offline' || d.error) {
+      el.innerHTML = '<span class="badge-offline">&#9679; Gateway offline</span>';
+    } else {
+      el.innerHTML = '<span class="badge-online">&#9679; Connected</span>';
+    }
+  } catch(e) {
+    document.getElementById('openclaw-status').innerHTML = '<span class="badge-offline">&#9679; Offline</span>';
+  }
+}
+
+// Filter change
+document.getElementById('filter-select').addEventListener('change', function() {
+  activeFilter = this.value;
+  renderSidebar();
+  renderMissions();
+});
+
+// Auto-refresh fallback if WS fails
+setInterval(() => { if (!ws || ws.readyState !== WebSocket.OPEN) fetchState(); }, 5000);
+
+// Init
+connect();
+fetchState();
+checkOpenClaw();
+setInterval(checkOpenClaw, 15000);
+</script>
+</body>
+</html>
