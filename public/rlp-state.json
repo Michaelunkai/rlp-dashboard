@@ -39,7 +39,7 @@
                   {
                       "id":  7,
                       "text":  "[Browser] Open deployed Netlify URL, test ALL features: signup, login, create/edit/delete tasks, filters, search, settings, responsive layout - Mission: MegaToDo deploy and perfect",
-                      "status":  "pending"
+                      "status":  "done"
                   },
                   {
                       "id":  8,
