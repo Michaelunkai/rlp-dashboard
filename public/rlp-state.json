@@ -24,7 +24,7 @@
                   {
                       "id":  4,
                       "text":  "[F:/study/WebBuilding/projects/MegaToDo/frontend] Run npm install and npm run build in frontend/ dir, verify build succeeds with zero errors - Mission: MegaToDo deploy and perfect",
-                      "status":  "pending"
+                      "status":  "done"
                   },
                   {
                       "id":  5,
