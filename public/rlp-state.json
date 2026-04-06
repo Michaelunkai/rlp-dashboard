@@ -1,12 +1,13 @@
 ﻿{
     "mode":  "rlp30",
-    "total":  30,
+    "total":  60,
     "created":  "2026-04-06T12:00:00Z",
-    "task":  "Clone rlp-dashboard repo, build beautiful real-time RLP mission control web app with bidirectional sync to local rlp-state.json, deploy on Netlify with permanent URL, auto-reconnect when PC back online, full task editing from anywhere",
+    "task":  "Clone rlp-dashboard repo, build beautiful real-time RLP mission control web app with bidirectional sync to local rlp-state.json, deploy on Netlify with permanent URL, auto-reconnect when PC back online, full task editing from anywhere + Make https://megatodo-michaelunkai.netlify.app/ have every Todoist feature with permanent Supabase database, import all Todoist data permanently",
     "workingDir":  "F:\\Downloads",
-    "context":  "Project: RLP Dashboard - a web-based mission control for Claude Code RLP system. GitHub repo: https://github.com/Michaelunkai/rlp-dashboard. Local RLP state file: C:\\Users\\micha\\.claude\\workspace\\rlp-state.json. Local RLP script: F:\\study\\AI_ML\\AI_and_Machine_Learning\\Artificial_Intelligence\\cli\\claudecode\\rlp\\rlp.ps1. The dashboard must show all RLP todos, missions, progress in a beautiful UI. Bidirectional sync: local PC runs a sync agent (PowerShell) that pushes state to a cloud backend (Netlify serverless or similar), and pulls web edits back. When PC is off, web app works offline with last-known state and queues edits. When PC reconnects, it syncs all changes. Tech: Next.js or static React on Netlify, Netlify Functions for API, localStorage for offline. PowerShell sync script runs as scheduled task. CRITICAL: PS v5 syntax only, no em-dashes, semicolons for chaining.",
+    "context":  "Project 1 (RLP Dashboard): GitHub repo https://github.com/Michaelunkai/rlp-dashboard. Local RLP state: C:\\Users\\micha\\.claude\\workspace\\rlp-state.json. Tech: React/Vite, Tailwind, Netlify Functions, PS v5 sync agent. Project 2 (MegaTodo): GitHub repo https://github.com/Michaelunkai/megatodo. Deployed: https://megatodo-michaelunkai.netlify.app/. Goal: feature-parity with Todoist (projects, sections, tasks, labels, priorities, due dates, recurring tasks, reminders, filters, board/list view, quick add, search, comments, attachments, karma stats, import/export). Database: Supabase (permanent cloud DB). Auth: Supabase Auth. Import user Todoist data permanently. Force push to main, redeploy same URL, update README. CRITICAL: PS v5 syntax only.",
     "missionExplanations":  {
-                                "RLP Dashboard":  "GOAL: Build and deploy a stunning, real-time web dashboard for Claude Code RLP mission control that syncs bidirectionally with the local rlp-state.json file, accessible from anywhere at any time.\n\nThe RLP Dashboard is a web application hosted on Netlify that provides full visibility and control over the Ralph Loop Plus (RLP) automated todo system used by Claude Code. The local machine stores RLP state in C:\\Users\\micha\\.claude\\workspace\\rlp-state.json, which contains missions, todos, progress, and context. This dashboard reads that state, displays it beautifully, and allows the user to edit tasks, reorder them, add new ones, mark them done, and manage missions -- all from a browser on any device.\n\nThe architecture has three layers: (1) A React/Next.js frontend deployed as a static site on Netlify with a permanent custom subdomain URL. The UI must be world-class -- dark theme, glassmorphism cards, smooth animations, progress rings, drag-and-drop reordering, inline editing, mission grouping with expandable sections, and mobile-responsive design. (2) A Netlify Functions (serverless) backend that stores the latest state in a cloud-accessible location and serves as the sync endpoint. It accepts POST requests with updated state from the local PC and GET requests from the web UI. (3) A local PowerShell sync agent that runs on the user\u0027s PC (via Task Scheduler or startup script) and periodically pushes rlp-state.json to the cloud endpoint, and pulls any web-originated edits back to the local file.\n\nWhen the PC is off, the web app continues to work with the last-synced state stored in the serverless backend. Users can still edit, reorder, and manage tasks. These changes are queued. When the PC comes back online, the sync agent detects it has been offline, pulls all pending web changes, merges them with local state (web edits win for conflicts on the same todo), and pushes the merged state back.\n\nGitHub repo: https://github.com/Michaelunkai/rlp-dashboard\nDeployed: TBD (will be set up during this mission)\n\nKey files: package.json, src/App.jsx (or pages/index.tsx), netlify/functions/sync.js, public/index.html, netlify.toml, and the local sync script at C:\\Users\\micha\\.claude\\scripts\\rlp-sync-agent.ps1. The sync agent must use PS v5 compatible syntax (semicolons not \u0026\u0026, no em-dashes, ConvertFrom-Json/ConvertTo-Json)."
+                                "RLP Dashboard":  "GOAL: Build and deploy a stunning, real-time web dashboard for Claude Code RLP mission control that syncs bidirectionally with the local rlp-state.json file, accessible from anywhere at any time.\n\nThe RLP Dashboard is a web application hosted on Netlify that provides full visibility and control over the Ralph Loop Plus (RLP) automated todo system used by Claude Code. The local machine stores RLP state in C:\\Users\\micha\\.claude\\workspace\\rlp-state.json, which contains missions, todos, progress, and context. This dashboard reads that state, displays it beautifully, and allows the user to edit tasks, reorder them, add new ones, mark them done, and manage missions -- all from a browser on any device.\n\nThe architecture has three layers: (1) A React/Next.js frontend deployed as a static site on Netlify with a permanent custom subdomain URL. The UI must be world-class -- dark theme, glassmorphism cards, smooth animations, progress rings, drag-and-drop reordering, inline editing, mission grouping with expandable sections, and mobile-responsive design. (2) A Netlify Functions (serverless) backend that stores the latest state in a cloud-accessible location and serves as the sync endpoint. It accepts POST requests with updated state from the local PC and GET requests from the web UI. (3) A local PowerShell sync agent that runs on the user\u0027s PC (via Task Scheduler or startup script) and periodically pushes rlp-state.json to the cloud endpoint, and pulls any web-originated edits back to the local file.\n\nWhen the PC is off, the web app continues to work with the last-synced state stored in the serverless backend. Users can still edit, reorder, and manage tasks. These changes are queued. When the PC comes back online, the sync agent detects it has been offline, pulls all pending web changes, merges them with local state (web edits win for conflicts on the same todo), and pushes the merged state back.\n\nGitHub repo: https://github.com/Michaelunkai/rlp-dashboard\nDeployed: TBD (will be set up during this mission)\n\nKey files: package.json, src/App.jsx (or pages/index.tsx), netlify/functions/sync.js, public/index.html, netlify.toml, and the local sync script at C:\\Users\\micha\\.claude\\scripts\\rlp-sync-agent.ps1. The sync agent must use PS v5 compatible syntax (semicolons not \u0026\u0026, no em-dashes, ConvertFrom-Json/ConvertTo-Json).",
+                                "MegaTodo Todoist Clone":  "GOAL: Transform https://megatodo-michaelunkai.netlify.app/ into a fully-featured Todoist clone with permanent Supabase database, every Todoist feature without exception, and all the user\u0027s existing Todoist data imported permanently.\n\nThe MegaTodo project lives at https://github.com/Michaelunkai/megatodo and is deployed at https://megatodo-michaelunkai.netlify.app/. The mission is to make it feature-complete compared to Todoist -- the gold standard task management app. Currently the app likely uses localStorage or has limited features. The permanent database must be Supabase (PostgreSQL), so every task, project, label, comment, and attachment persists across devices and sessions forever.\n\nThe Todoist feature set to implement (every single one, no exceptions):\n- Projects with color coding, icons, sharing/collaboration\n- Sections within projects (grouping tasks)\n- Tasks with: title, description/notes, due date+time, priority (P1/P2/P3/P4), labels, assignee, project/section, parent task (subtasks)\n- Recurring tasks (every day, week, month, custom RRULE patterns)\n- Labels/tags with colors (user-defined)\n- Filters (custom saved filter views with boolean logic)\n- Inbox (default project for unorganized tasks)\n- Today view (all tasks due today or overdue)\n- Upcoming view (7-day calendar of due tasks)\n- Board/Kanban view (drag cards between sections)\n- List view (default flat list)\n- Quick Add (keyboard shortcut Q or + with smart date/label parsing)\n- Global search (search all tasks, projects, comments)\n- Comments on tasks (threaded)\n- File attachments (stored in Supabase Storage)\n- Reminders/notifications (browser push notifications + email)\n- Keyboard shortcuts (full Todoist-compatible set: Q=quick add, A=add below, p=priority, d=date, @=label, #=project, /=search)\n- Productivity stats / Karma system (daily streaks, tasks completed per day/week, trend charts)\n- Goals (daily/weekly targets)\n- Import from Todoist (JSON export format: parse projects, tasks, labels, due dates)\n- Export functionality (JSON + CSV)\n- Mobile-responsive design (works on phone)\n- Dark/light theme toggle\n\nDatabase schema: projects, sections, tasks, labels, task_labels, comments, attachments, filters, reminders, user_stats tables in Supabase.\n\nAuth: Supabase Auth (email/password + optionally Google OAuth).\n\nThe user\u0027s existing Todoist data must be imported permanently into Supabase -- all projects, tasks, labels, due dates, priorities, and notes.\n\nGitHub repo: https://github.com/Michaelunkai/megatodo\nDeployed: https://megatodo-michaelunkai.netlify.app/\n\nAfter completing all features, force push to main branch and redeploy to the SAME Netlify URL. Update README.md with the permanent URL and feature list. The URL must remain https://megatodo-michaelunkai.netlify.app/ -- do not create a new site."
                             },
     "todos":  [
                   {
@@ -157,6 +158,156 @@
                   {
                       "id":  30,
                       "text":  "[F:\\Downloads\\rlp-dashboard] End-to-end test: verify local rlp-state.json changes appear on website within 30s, verify web edits sync back to local file, verify offline edit queue works, verify reconnection sync -- Mission: RLP Dashboard",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  31,
+                      "text":  "[F:\\Downloads\\MegaTodo] git clone https://github.com/Michaelunkai/megatodo F:\\Downloads\\MegaTodo (or git -C F:\\Downloads\\MegaTodo pull if exists); inspect ALL files: package.json, src/ tree, any existing DB config, netlify.toml; document current feature set vs Todoist gaps -- Mission: MegaTodo Todoist Clone",
+                      "status":  "done"
+                  },
+                  {
+                      "id":  32,
+                      "text":  "[F:\\Downloads\\MegaTodo] Create Supabase project via supabase CLI or note manual steps; create .env.local with VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY; create supabase/migrations/001_initial_schema.sql with tables: profiles, projects, sections, tasks, labels, task_labels, comments, attachments, filters, reminders, user_stats, task_activity -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  33,
+                      "text":  "[F:\\Downloads\\MegaTodo\\supabase\\migrations\\001_initial_schema.sql] Write full Supabase schema: projects(id,user_id,name,color,icon,order,is_inbox,is_favorite,is_shared), sections(id,project_id,name,order), tasks(id,user_id,project_id,section_id,parent_id,title,description,priority,due_date,due_time,is_recurring,recurrence_rule,labels,assignee_id,order,is_completed,completed_at), labels(id,user_id,name,color), task_labels(task_id,label_id), comments(id,task_id,user_id,content,created_at), attachments(id,task_id,user_id,filename,storage_path,size), filters(id,user_id,name,query_json), reminders(id,task_id,user_id,remind_at,type), user_stats(user_id,karma,tasks_completed_today,streak_days,last_active); enable RLS on all tables -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  34,
+                      "text":  "[F:\\Downloads\\MegaTodo] Install all required dependencies: npm install @supabase/supabase-js @supabase/auth-helpers-react react-router-dom @dnd-kit/core @dnd-kit/sortable date-fns react-datepicker react-hot-toast lucide-react zustand rrule react-markdown; verify package.json updated -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  35,
+                      "text":  "[F:\\Downloads\\MegaTodo\\src\\lib\\supabase.js] Create Supabase client: import createClient from @supabase/supabase-js; export supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY); also create src/lib/auth.js with signUp/signIn/signOut/getUser helpers using supabase.auth -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  36,
+                      "text":  "[F:\\Downloads\\MegaTodo\\src\\store\\] Create Zustand stores: useAuthStore.js (user, session, loading, signIn, signOut), useProjectStore.js (projects[], fetchProjects, createProject, updateProject, deleteProject, reorderProjects), useTaskStore.js (tasks[], fetchTasks, createTask, updateTask, deleteTask, completeTask, reorderTasks), useLabelStore.js, useFilterStore.js -- each store calls Supabase directly -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  37,
+                      "text":  "[F:\\Downloads\\MegaTodo\\src\\components\\Auth\\] Create AuthPage.jsx with email/password sign-in + sign-up tabs, form validation, error display via react-hot-toast; create AuthGuard.jsx wrapper that redirects to /auth if not signed in; update src/main.jsx to wrap App with AuthGuard -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  38,
+                      "text":  "[F:\\Downloads\\MegaTodo\\src\\components\\Sidebar\\] Create Sidebar.jsx: navigation with Inbox, Today, Upcoming, Filters sections; Projects list with color dots, drag-to-reorder, add project button (+); Labels section; Favorites section; collapse/expand; active item highlight; keyboard nav (arrow keys) -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  39,
+                      "text":  "[F:\\Downloads\\MegaTodo\\src\\components\\Tasks\\] Create TaskItem.jsx: checkbox (click=complete with strikethrough animation), title (click=open detail), priority color indicator (P1=red/P2=orange/P3=blue/P4=gray), due date badge (red if overdue), labels chips, drag handle; create TaskList.jsx: @dnd-kit sortable list of TaskItems with section grouping; create SectionHeader.jsx: section name with add task button and collapse arrow -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  40,
+                      "text":  "[F:\\Downloads\\MegaTodo\\src\\components\\TaskDetail\\] Create TaskDetailPanel.jsx: slide-in right panel (or modal) for editing a task; fields: title (large editable), description (markdown editor), due date+time picker (react-datepicker), priority selector (P1-P4 buttons), label multi-select, project+section dropdowns, assignee, recurring toggle+pattern selector (daily/weekly/monthly/custom via rrule), subtasks list, comments thread, attachments list with upload button -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  41,
+                      "text":  "[F:\\Downloads\\MegaTodo\\src\\components\\QuickAdd\\] Create QuickAddModal.jsx: global keyboard shortcut listener (Q key or + button), floating modal with smart text parsing: detect #ProjectName, @Label, p1/p2/p3/p4 priority, today/tomorrow/next week date expressions; parse input and pre-fill task fields; submit creates task via useTaskStore.createTask; Esc to close -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  42,
+                      "text":  "[F:\\Downloads\\MegaTodo\\src\\views\\] Create TodayView.jsx: fetch tasks with due_date \u003c= today OR overdue; group by project; show overdue section first in red; count badge; create UpcomingView.jsx: 7-day calendar grid, each day shows tasks due that day, click day to add task with that date; create InboxView.jsx: tasks in inbox project; create ProjectView.jsx: tasks for selected project with sections, board/list toggle -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  43,
+                      "text":  "[F:\\Downloads\\MegaTodo\\src\\components\\Board\\] Create BoardView.jsx: Kanban columns = sections, cards = tasks, @dnd-kit drag between columns; TaskCard.jsx: compact card with title, priority color, due date, labels, assignee avatar; AddColumnButton; column scroll; create ListBoardToggle.jsx button to switch between list/board view -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  44,
+                      "text":  "[F:\\Downloads\\MegaTodo\\src\\components\\Search\\] Create SearchModal.jsx: Cmd+K or / shortcut opens overlay; fuzzy search across tasks (title+description), projects, labels; results grouped by type; keyboard nav (arrow+Enter); highlight matching text; recent searches stored in localStorage; click result opens task detail or navigates to project -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  45,
+                      "text":  "[F:\\Downloads\\MegaTodo\\src\\components\\Filters\\] Create FiltersView.jsx: list saved filters; create FilterBuilder.jsx: visual query builder with conditions (priority is P1, due date before X, label is Y, project is Z) AND/OR logic; preview matching tasks live; save filter with name and color; delete filter -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  46,
+                      "text":  "[F:\\Downloads\\MegaTodo\\src\\components\\Stats\\] Create KarmaPage.jsx: daily tasks completed bar chart (last 14 days), weekly streak calendar, karma score with level badge (Beginner/Intermediate/Expert/Master), goals widget (daily/weekly target tasks), productivity heatmap (GitHub-style); fetch from user_stats Supabase table; update stats on task completion via Supabase trigger or client-side -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  47,
+                      "text":  "[F:\\Downloads\\MegaTodo\\src\\components\\Comments\\] Create CommentsPanel.jsx: list comments for a task with user avatar, timestamp, markdown content; AddComment.jsx: textarea with Ctrl+Enter submit, @mention support; update comment count on task; create AttachmentsPanel.jsx: list files with icon, size, download link; file upload button that uploads to Supabase Storage bucket \u0027attachments\u0027 and inserts record -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  48,
+                      "text":  "[F:\\Downloads\\MegaTodo\\src\\hooks\\useKeyboardShortcuts.js] Create global keyboard shortcut system: Q=QuickAdd, /=Search, A=add task below current, p=set priority, d=set due date, @=add label, #=move to project, G+I=Inbox, G+T=Today, G+U=Upcoming, Esc=close modals, ?=show shortcuts help modal; use useEffect+addEventListener on document; show KeyboardShortcutsModal.jsx with full cheat sheet -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  49,
+                      "text":  "[F:\\Downloads\\MegaTodo\\src\\components\\Reminders\\] Create reminders system: requestNotificationPermission() on first login; create scheduleReminder(taskId, remindAt) that inserts into reminders table; create useReminders.js hook that polls for due reminders every 60s and triggers browser Notification API; show reminder toast with task title and snooze/dismiss buttons -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  50,
+                      "text":  "[F:\\Downloads\\MegaTodo\\src\\utils\\importTodoist.js] Create Todoist import utility: parse Todoist JSON export format (projects array with items/tasks, labels, notes/comments); map to MegaTodo schema; create projects in Supabase, then sections, then tasks (preserving parent-child relationships via parent_id), then labels and task_label links, then comments; create ImportPage.jsx with drag-drop JSON file upload, preview parsed data, confirm import button, progress indicator -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  51,
+                      "text":  "[F:\\Downloads\\MegaTodo\\src\\utils\\exportTodoist.js] Create export utility: fetch all user data from Supabase (projects, tasks, labels, comments); format as Todoist-compatible JSON and also as CSV; create ExportPage.jsx with \u0027Export as JSON\u0027 and \u0027Export as CSV\u0027 buttons; trigger browser download; also add dark/light theme toggle using CSS class on html element stored in localStorage -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  52,
+                      "text":  "[F:\\Downloads\\MegaTodo\\src\\App.jsx] Wire up complete routing: / -\u003e redirect to /inbox, /inbox, /today, /upcoming, /project/:id, /filter/:id, /labels, /stats, /import, /export, /settings, /auth; create Settings.jsx page with profile update, password change, notification prefs, theme toggle, account deletion; add ThemeProvider that applies dark/light class -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  53,
+                      "text":  "[F:\\Downloads\\MegaTodo] Polish UI: implement consistent Todoist-style design: sidebar width 250px, main content full height, task hover actions (edit/delete/move buttons appear on hover), priority color left border on task items, smooth checkbox check animation, completed tasks strike-through fade, empty state illustrations, loading skeletons, mobile sidebar drawer with hamburger -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  54,
+                      "text":  "[F:\\Downloads\\MegaTodo] Import user\u0027s actual Todoist data: user must provide their Todoist export JSON (from todoist.com/app/settings/account -\u003e Export); once provided, run importTodoist.js against the Supabase DB via the import UI; verify all projects, tasks, labels, and due dates appear correctly in the app -- PLACEHOLDER: if export not available yet, seed with sample realistic data matching expected Todoist structure -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  55,
+                      "text":  "[F:\\Downloads\\MegaTodo\\netlify.toml] Create/update netlify.toml: [build] command=\u0027npm run build\u0027, publish=\u0027dist\u0027; [[redirects]] from=\u0027/*\u0027 to=\u0027/index.html\u0027 status=200 (SPA routing); add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to Netlify environment variables via netlify CLI: `netlify env:set VITE_SUPABASE_URL \u003curl\u003e` and `netlify env:set VITE_SUPABASE_ANON_KEY \u003ckey\u003e` -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  56,
+                      "text":  "[F:\\Downloads\\MegaTodo] Run full local build test: npm run build; verify dist/ folder created with no errors; check for TypeScript/ESLint errors; fix any import errors, missing modules, or build failures; run npm run dev and manually verify: auth flow, task CRUD, project creation, drag-drop, quick add, search, keyboard shortcuts all work -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  57,
+                      "text":  "[F:\\Downloads\\MegaTodo] git add -A; git commit -m \u0027feat: complete Todoist clone with Supabase DB, all features, import/export\u0027; git push --force origin main; verify push succeeds at https://github.com/Michaelunkai/megatodo -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  58,
+                      "text":  "[F:\\Downloads\\MegaTodo] Deploy to Netlify with SAME site name: run `netlify link` to link to existing megatodo-michaelunkai site (or `netlify deploy --prod --site megatodo-michaelunkai`); wait for build to complete; verify https://megatodo-michaelunkai.netlify.app/ loads correctly with new features -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  59,
+                      "text":  "[F:\\Downloads\\MegaTodo\\README.md] Update README.md: add permanent URL https://megatodo-michaelunkai.netlify.app/ at top, full feature list matching Todoist parity, Supabase setup instructions (create project, run migration SQL, set env vars), screenshots description, keyboard shortcuts table, import/export guide; git add README.md; git commit; git push origin main -- Mission: MegaTodo Todoist Clone",
+                      "status":  "pending"
+                  },
+                  {
+                      "id":  60,
+                      "text":  "[F:\\Downloads\\MegaTodo] End-to-end verification: open https://megatodo-michaelunkai.netlify.app/ in browser; sign up/in; create project; add tasks with priorities/due dates/labels; test board view; test Today/Upcoming views; test quick add (Q key); test search (/); verify imported Todoist data appears; verify completing a task persists after page refresh (Supabase DB confirmed); verify URL is permanent and stable -- Mission: MegaTodo Todoist Clone",
                       "status":  "pending"
                   }
               ]
